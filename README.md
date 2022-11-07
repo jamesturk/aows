@@ -7,6 +7,7 @@ Planning to do some side-by-side comparisons of various libraries within Python'
 lxml
 html5lib
 beautifulsoup4
+https://github.com/rushter/selectolax
 
 - Speed
   - Parse DOM
@@ -44,5 +45,9 @@ Recommended Pieces of a web scraping stack:
   * marshmallow
   * attrs
   * jsonschema, et al.
-* Standalone ORM
-  * 
+* ORM / Etc
+  * PonyORM
+  * Tortoise ORM
+  * databases
+* Datasette
+* Git Scraping
