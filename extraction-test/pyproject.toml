@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "extraction-test"
+version = "0.1.0"
+description = ""
+authors = ["James Turk <dev@jamesturk.net>"]
+readme = "README.md"
+packages = [{include = "extraction_test"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+beautifulsoup4 = "^4.11.1"
+lxml = "^4.9.1"
+html5lib = "^1.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
