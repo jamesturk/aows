@@ -252,9 +252,24 @@ To simulate a real world scrape, I figured we could treat the benchmarks as a se
 
 Our fake scrape will look like this:
 
-1) Parse the Python example page.
-2) For each link on the page, parse the page the link points to.  (Note: the index contains many links to the same page, we'll parse each page each time it is encountered to simulate having many more actual pages.)
-3) On each of those pages, we will both walk the entire DOM and extract the full text.
+1) Parse the [Python documentation index](https://docs.python.org/3/genindex-all.html) as a start page.
+2) For each link on the page, parse the page the link points to.  (Note: The index contains many links to the same page, we'll parse each page each time it is encountered to simulate having many more actual pages.)
+3) On each of those pages, we'll perform 3 tasks:
+  a) Extract the text from the root element.
+  b) Count the number of elements on the page by walking the DOM.
+  c) Count the spans on the page using CSS selectors.
 
-All of this will be done using local files so no actual network requests will be made.
+This is a decent simulacrum of the work that a real scrape would do.  All in all our mock scrape hits 11,824 pages, a moderately sized scrape.
 
+And of course, as before, all of this will be done using local files so no actual network requests will be made. An initial run will warm an in-memory cache, so disk I/O will not be a factor either.
+
+This code is in [benchmark6.py](#TODO).
+
+The results were interesting, after a sample run to warm the cache, the results looked like:
+
+| Parser                      | Time (s) |
+| --------------------------- | -------- |
+| lxml                        | 119 |
+| BeautifulSoup\[html.parser] | 1.2 |
+| BeautifulSoup\[html5lib]    | 1.2 |
+| BeautifulSoup\[lxml]        | 1.2 |
