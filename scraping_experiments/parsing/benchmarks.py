@@ -9,10 +9,10 @@ from .implementations import BSoup, Lxml
 def run_all_benchmarks():
     methods = [
         ("load_dom", 5),
-        ("links_natural", 10),
-        ("links_css", 10),
-        ("count_elements", 10),
-        ("extract_text", 10),
+        ("links_natural", 100),
+        ("links_css", 100),
+        ("count_elements", 100),
+        ("extract_text", 100),
     ]
     implementations = [Lxml(), BSoup("html.parser"), BSoup("html5lib"), BSoup("lxml")]
     runs = []
@@ -51,7 +51,7 @@ def show_results(df, method, examples=None):
     ax = sns.barplot(filtered, x="example", y="average_time", hue="implementation")
     ax.set_ylabel("Avg. Time (s)")
     ax.set_xlabel("Example HTML")
-    ax.set_title(f"{method} (N={filtered['count'].iloc[0]})")
+    ax.set_title(f"{method} (runs={filtered['count'].iloc[0]})")
     sns.move_legend(ax, "upper left", bbox_to_anchor=(1, 1))
 
     means = filtered.groupby("implementation").mean("average_time")
@@ -66,7 +66,9 @@ def show_results(df, method, examples=None):
 
     # save image to file
     plt.savefig(
-        f"{method}.png", dpi=150, bbox_inches=mpl.transforms.Bbox([[0, 0], [8.3, 4.6]])
+        f"img/{method}.png",
+        dpi=150,
+        bbox_inches=mpl.transforms.Bbox([[0, 0], [8.3, 4.6]]),
     )
 
 
