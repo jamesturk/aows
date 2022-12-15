@@ -51,11 +51,15 @@ def scrape(impl):
     text_count = 0
     subpages = 0
     spans = 0
+    seen = set()
 
     html = cached_get(start_url)
     tree = impl.parse_dom(html)
     for link in impl.find_tags(tree, "a"):
         href = link.get("href").split("#")[0]
+        # if href in seen:
+        #     continue
+        # seen.add(href)
         if href.startswith("library/"):
             subpage = impl.parse_dom(cached_get(href))
             subpages += 1
@@ -64,12 +68,14 @@ def scrape(impl):
             spans += len(list(impl.find_tags(subpage, "span")))
 
     print(
-        f"lxml scraped {nodes} nodes, {spans} <span> tags, and {text_count} characters from {subpages} subpages"
+        f"{impl} scraped {nodes} nodes, {spans} <span> tags, and {text_count} characters from {subpages} subpages"
     )
 
 
-scrape(Lxml())  # prime cache
+# prime cache
+scrape(Lxml())
 
-# scrape(BSoup("html.parser"))
+scrape(Lxml())
+scrape(BSoup("html.parser"))
 scrape(BSoup("lxml"))
-# scrape(BSoup("html5lib"))
+scrape(BSoup("html5lib"))
