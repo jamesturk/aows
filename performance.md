@@ -294,10 +294,32 @@ Let's take a look at how this plays out as we increase the number of requests pe
 
 So, as we increase the number of requests per second, lxml.html is the only parser that can keep up with our hypothetical scrape.
 
+### Memory Comparison
+
+Finally, let's take a look at how much memory each parser uses while handling the following files:
+
+| Example | Bytes | Tags | 
+| ------- | ----- | ---- |
+| asha_bhosle | 1,132,673 | |
+| python | 1,683,137 | |
+| html5test | 18,992 | |
+
+This is somewhat difficult to measure, as the memory usage of an object is not easily accessible from Python.  I used [memray](https://github.com/bloomberg/memray) to measure a sample piece of code that loaded each parser and parsed the sample pages.  To compare the memory usage between complex pages and simple pages, the sample code also loaded the html5test page 100 times.
+
+![](img/memory_usage.png)
+
+One thing to note is that the memory usage seems to be correlated to complexity (i.e. number of tags), which makes sense.
+
+Again, lxml.html is the clear winner here, using less than half the memory of the other parsers.
+
 ## Conclusion
 
 One one hand, performance isn't going to make or break your scrape.  If you're scraping a small number of pages, or are dealing with a slow site or rate limit, the difference between the fastest and slowest parsers is going to be negligible.
 
-In practice, the real payoffs of using a faster parser are going to be felt the most during development. If you're using a local cache while scraping, your requests per second are nearly limitless.  This means that the speed of your parser is going to be the limiting factor in how fast you can iterate on your scrape.
+In practice, the real payoffs of using a faster parser are going to be felt the most during development of larger scrapers. If you're using a local cache while scraping, your requests per second are nearly limitless.  This means that the speed of your parser is going to be the limiting factor in how fast you can iterate on your scrape.
 
-In a ~1000 page scrape from cache of pages similar to our final benchmark, a full trial run would take less than 15 seconds while a full trial run with `html5lib.parser` would take nearly 3 minutes.  At ~10000 pages the difference between the shortest and longest is almost half an hour.
+In a 1,000 page scrape from cache of pages similar to our final benchmark, a full trial run would take less than 15 seconds while a full trial run with `html5lib.parser` would take nearly 3 minutes.  At 10,000 pages the difference between the shortest and longest is almost half an hour.
+
+Memory usage might also matter to you, if you are running your scraper on a small VPS or have unusually complex pages, memory usage could be a factor and that's another place where `lxml.html` shines.
+
+Next time, we'll take a look at how lenient each parser is, and how that affects your scrape.

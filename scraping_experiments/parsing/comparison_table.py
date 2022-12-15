@@ -40,7 +40,7 @@ fig.set_xlabel("Requests per second")
 
 plt.title("RPS vs. % of time in parser")
 plt.savefig(
-    f"img/rps_vs_time.png",
+    "img/rps_vs_time.png",
     dpi=150,
     #    bbox_inches=mpl.transforms.Bbox([[0, 0], [8.3, 4.6]]),
 )
