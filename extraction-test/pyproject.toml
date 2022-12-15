@@ -11,6 +11,12 @@ python = "^3.10"
 beautifulsoup4 = "^4.11.1"
 lxml = "^4.9.1"
 html5lib = "^1.1"
+pandas = "^1.5.2"
+matplotlib = "^3.6.2"
+jupyter = "^1.0.0"
+notebook = "^6.5.2"
+seaborn = "^0.12.1"
+cssselect = "^1.2.0"
 
 
 [build-system]
