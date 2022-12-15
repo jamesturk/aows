@@ -126,7 +126,7 @@ BeautifulSoup:
 links = root.select('a[href]')
 ```
 
-It is clear at this point, `lxml` is probably going to win every benchmark. 
+lxml.html once again was a clear winner:
 
 ![links_css](links_css.png)
 
@@ -168,26 +168,56 @@ BeautifulSoup:
 
 But when comparing the results, I saw this
 
-| Parser | Example | Elements |
-| --- | --- | --- |
-| lxml | asha_bhosle | 38458 |
-| lxml | python | 34944 |
-| BeautifulSoup\[html.parser] |  asha_bhosle |   97,786
-| BeautifulSoup\[html.parser]  |      python |   87,949
-| BeautifulSoup\[html5lib]   | asha_bhosle  |  97,783
-| BeautifulSoup\[html5lib]  |     python   | 87,973
-| BeautifulSoup\[lxml]  | asha_bhosle   | 97,785
-| BeautifulSoup\[lxml]  |     python   | 87,947
+| Parser                      | Example      | Elements |
+| --------------------------- | ------------ | ------ |
+| lxml                        | asha_bhosle  | 38,458 |
+| lxml                        | python       | 34,944 |
+| BeautifulSoup\[html.parser] | asha_bhosle  | 97,786
+| BeautifulSoup\[html.parser] | python       | 87,949
+| BeautifulSoup\[html5lib]    | asha_bhosle  | 97,783
+| BeautifulSoup\[html5lib]    | python       | 87,973
+| BeautifulSoup\[lxml]        | asha_bhosle  | 97,785
+| BeautifulSoup\[lxml]        | python       | 87,947
 
 This was no good, lxml found less than half the number of elements that BeautifulSoup did.  Furthermore, BeautifulSoup wasn't consistent between parsers.
 
-Using other methods like `iter()` or `descendants` didn't help either.  I eventually figured out that lxml was only counting elements that had children.  This is because `getchildren()` only returns elements that have children, while `children` returns all elements.
+After taking a look at a parsed tree, I realized that BeautifulSoup's `.children` returns text nodes. For parity, I altered the code to check if the element was an HTML tag, and if it wasn't, it would skip it.
+
+BeautifulSoup (revised):
+
+```python
+  elements = []
+  def count(element):
+      if isinstance(element, bs4.Tag):
+        elements.append(element)
+        for child in element.children:
+            count(child)
+  count(root)
+```
+
+With this, the counts lined up much better:
+
+| example     |   BeautifulSoup[html.parser] |   BeautifulSoup[html5lib] |   BeautifulSoup[lxml] |   lxml.html |
+|:------------|-----------------------------:|--------------------------:|----------------------:|------------:|
+| asha_bhosle |                       38,454 |                    38,454 |                38,454 |      38,453 |
+| python      |                       34,945 |                    34,973 |                34,945 |      34,944 |
+
+
+There are still small differences, especially with html5lib.  I assume we'll revisit this when we get to evaluating leniency.
+
+How about the performance?
+
+![](count_elements.png)
+
+Wow! BeautifulSoup won, it is about 30% faster to do this traversal with BeautifulSoup. The difference here is of course much smaller, but I'd assumed we wouldn't see BeautifulSoup win any of these benchmarks by this point.
 
 ### Benchmark #5 - Extracting Text
 
 Finally, we'll use each parser's built in text extraction function to extract the text from the pages.
 
-lxml:
+These methods are typically used to extract all of the text from a block of HTML. This is useful for things like searching or summarizing the content.
+
+For benchmarking purposes I figured I'd just extract the text from the root element.
 
 ```python
 text = root.text_content()
@@ -198,3 +228,33 @@ BeautifulSoup:
 ```python
 text = root.get_text()
 ```
+
+The lengths here differed as well:
+
+| example       |   BeautifulSoup[html.parser]  |   BeautifulSoup[html5lib] |   BeautifulSoup[lxml] |   lxml.html |
+|:--------------|-----------------------------: |--------------------------:|----------------------:|-------------:|
+| *asha_bhosle* |                       453,835 |                   464,164 |               453,834 |      464,165 |
+| *python*      |                       453,848 |                   576,337 |               453,846 |      576,340 |
+
+For the `python` example it is notable that html5lib and lxml.html are finding about 100,000 more characters than the other parsers.  This is likely due to the fact that they are more lenient in their parsing.  We'll look at this in more detail in the next section.
+
+As for how the speed compared, lxml.html once again was the fastest:
+
+![](extract_text.png)
+
+lxml.html averaged 7x faster.
+
+### Benchmark #6 - "Real World Scrape"
+
+So far we've been looking at very simple benchmarks of common methods. It seems clear that lxml.html is the fastest, but how much would that speed matter in a real world scenario?
+
+To simulate a real world scrape, I figured we could treat the benchmarks as a series of steps in a scrape.
+
+Our fake scrape will look like this:
+
+1) Parse the Python example page.
+2) For each link on the page, parse the page the link points to.  (Note: the index contains many links to the same page, we'll parse each page each time it is encountered to simulate having many more actual pages.)
+3) On each of those pages, we will both walk the entire DOM and extract the full text.
+
+All of this will be done using local files so no actual network requests will be made.
+
