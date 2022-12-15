@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 import pathlib
 import lxml.html
 from bs4 import BeautifulSoup, Tag
@@ -14,11 +14,31 @@ class Base(ABC):
                 pathlib.Path("testdata") / f"{example}.html"
             ).read_text()
 
+    @abstractmethod
+    def parse_dom(self, html):
+        pass
+
+    @abstractmethod
+    def find_tags(self, tree, tag):
+        pass
+
+    @abstractmethod
+    def all_nodes(self, tree):
+        pass
+
+    @abstractmethod
+    def all_text(self, tree):
+        pass
+
     def pre_parse(self):
         # Pre-parse the HTML to allow us to benchmark individual selections
         self.root = {}
         for name, html in self.html.items():
             self.root[name] = self.load_dom(name)
+
+    def extract_text(self, example):
+        nodes = self.find_tags(self.root[example], "ul")
+        return "".join(self.all_text(node) for node in nodes)
 
 
 class Lxml(Base):
@@ -57,9 +77,6 @@ class Lxml(Base):
         count(self.root[example])
         return elements
         # return list(self.root[example].iter())
-
-    def extract_text(self, example):
-        return self.root[example].text_content()
 
     def __repr__(self):
         return "lxml.html"
@@ -105,9 +122,6 @@ class BSoup(Base):
         count(self.root[example])
         return elements
         # return list(self.root[example].recursiveChildGenerator())
-
-    def extract_text(self, example):
-        return self.root[example].get_text()
 
     def __repr__(self):
         return f"BeautifulSoup[{self.parser}]"

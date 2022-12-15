@@ -5,15 +5,16 @@ from matplotlib import pyplot as plt
 import timeit
 from .implementations import BSoup, Lxml
 
+methods = [
+    ("load_dom", 5),
+    ("links_natural", 100),
+    ("links_css", 100),
+    ("count_elements", 100),
+    ("extract_text", 100),
+]
+
 
 def run_all_benchmarks():
-    methods = [
-        ("load_dom", 5),
-        ("links_natural", 100),
-        ("links_css", 100),
-        ("count_elements", 100),
-        ("extract_text", 100),
-    ]
     implementations = [Lxml(), BSoup("html.parser"), BSoup("html5lib"), BSoup("lxml")]
     runs = []
     for impl in implementations:
@@ -74,11 +75,5 @@ def show_results(df, method, examples=None):
 
 bdf = run_all_benchmarks()
 
-for func in [
-    "load_dom",
-    "links_natural",
-    "links_css",
-    "count_elements",
-    "extract_text",
-]:
+for func, _ in methods:
     show_results(bdf, func, ["asha_bhosle", "python"])

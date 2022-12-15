@@ -219,24 +219,30 @@ These methods are typically used to extract all of the text from a block of HTML
 
 For benchmarking purposes I figured I'd just extract the text from the root element.
 
+lxml.html: 
+
 ```python
-text = root.text_content()
+uls = root.xpath('//ul')
+text = "".join([ul.text_content() for ul in uls])
 ```
 
 BeautifulSoup:
 
 ```python
-text = root.get_text()
+uls = root.find_all('ul')
+text = "".join([ul.get_text() for ul in uls])
 ```
 
 The lengths here differed as well:
 
-| example       |   BeautifulSoup[html.parser]  |   BeautifulSoup[html5lib] |   BeautifulSoup[lxml] |   lxml.html |
-|:--------------|-----------------------------: |--------------------------:|----------------------:|-------------:|
-| *asha_bhosle* |                       453,835 |                   464,164 |               453,834 |      464,165 |
-| *python*      |                       453,848 |                   576,337 |               453,846 |      576,340 |
+| example     |   BeautifulSoup[html.parser] |   BeautifulSoup[html5lib] |   BeautifulSoup[lxml] |   lxml.html |
+|:------------|-----------------------------:|--------------------------:|----------------------:|------------:|
+| asha_bhosle |                         2270 |                      2282 |                  2270 |        2282 |
+| python      |                       565339 |                    740069 |                565339 |      740069 |
 
-For the `python` example it is notable that html5lib and lxml.html are finding about 100,000 more characters than the other parsers.  This is likely due to the fact that they are more lenient in their parsing.  We'll look at this in more detail in the next section.
+For the `python` example it is notable that html5lib and lxml.html are finding about 200,000 more characters than the other parsers.
+It's also quite strange that BeautifulSoup's lxml parser is finding the same number of characters as the html.parser, and not `lxml.html`.
+It'll be worth revisiting this when we get to evaluating leniency.
 
 As for how the speed compared, lxml.html once again was the fastest:
 
