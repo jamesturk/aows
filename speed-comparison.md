@@ -8,7 +8,7 @@ The conventional wisdom about these parsers is roughly:
 
 | Parser | Language | Speed | How Lenient? |
 | --- | --- | --- | --- |
-| html.parser | C | Slow | Moderately |
+| html.parser | part of CPython | Slow | Moderately |
 | lxml | C | Fast | Moderately |
 | html5lib | Python | Slowest | Extremely |
 
@@ -57,18 +57,18 @@ root = BeautifulSoup(html, 'lxml')
   # or 'html.parser' or 'html5lib'
 ```
 
-![](graph1-errors.png)
+![](img/graph1-errors.png)
 
 This first test highlighted two issues, first was that the html5test page was so small it didn't even register on the graph.  
 Second, something weird is going on with lxml.html and the NBA example, it kept giving outliers.  We'll return to that later when we look at leniency.
 
-![](graph2-load_dom-html5test.png)
+![](img/graph2-load_dom-html5test.png)
 
 Taking a look at a zoomed in graph with just html5test, it is clear the relative speeds are about the same between the different test pages.
 
 At this point in the experiment I decided to just use asha_bhosle and python.  Additional pages only cluttered up the graphs, and two felt like enough to show the degree of consistency between pages.
 
-![load_dom](load_dom.png)
+![load_dom](img/load_dom.png)
 
 As you can see looking at this final graph, lxml is significantly faster than the others.  Even when BeautifulSoup is using lxml as the parser, it is about 10x slower than using lxml directly. html5lib is about **20x slower** than lxml on parse_dom.
 
@@ -101,7 +101,7 @@ links = root.find_all('a', href=True)
 
 The results here are similar to the first benchmark, lxml is significantly faster than the others:
 
-![links_natural](links_natural.png)
+![links_natural](img/links_natural.png)
 
 I added code to count the number of links found as well, to make sure the two implementations were equivalent.  This surfaced more issues with lxml's parsing of the NBA page.  (Heavy-handed foreshadowing of future content.) For the other pages, lxml was about 6x faster than all BeautifulSoup implementations.
 
@@ -128,7 +128,7 @@ links = root.select('a[href]')
 
 lxml.html once again was a clear winner:
 
-![links_css](links_css.png)
+![links_css](img/links_css.png)
 
  It is about 12x faster than BeautifulSoup's CSS Selector implementation.
 
@@ -207,7 +207,7 @@ There are still small differences, especially with html5lib.  I assume we'll rev
 
 How about the performance?
 
-![](count_elements.png)
+![](img/count_elements.png)
 
 Wow! BeautifulSoup won, it is about 30% faster to do this traversal with BeautifulSoup. The difference here is of course much smaller, but I'd assumed we wouldn't see BeautifulSoup win any of these benchmarks by this point.
 
@@ -246,7 +246,7 @@ It'll be worth revisiting this when we get to evaluating leniency.
 
 As for how the speed compared, lxml.html once again was the fastest:
 
-![](extract_text.png)
+![](img/extract_text.png)
 
 lxml.html averaged 7x faster.
 
@@ -273,10 +273,31 @@ This code is in [benchmark6.py](#TODO).
 
 The results were interesting, after a sample run to warm the cache, the results looked like:
 
-| Parser                      | Time (s) |
-| --------------------------- | -------- |
-| lxml                        | 119 |
-| BeautifulSoup\[html.parser] | 1.2 |
-| BeautifulSoup\[html5lib]    | 1.2 |
-| BeautifulSoup\[lxml]        | 1.2 |
+| Parser                      | Time (s) | Pages/s |
+| --------------------------- | -------- | --------|
+| lxml                        | 114  | 104 |
+| BeautifulSoup\[html.parser] | 824  | 14 |
+| BeautifulSoup\[html5lib]    | 1,728 | 7 |
+| BeautifulSoup\[lxml]        | 623  | 19 |
 
+For a moderate-sized scrape like this one, lxml.html is about 7x faster than BeautifulSoup's html.parser.
+
+That said, notice that in each case, the number of pages per second is higher than 1.  A common wait time between requests is 1 second. This means that in each case, we'd be spending more time waiting for requests than actually parsing pages.
+
+So does this mean the speed of a parser doesn't matter? Not at all.
+
+What if you were able to make 20 requests per second?  At that point, only lxml.html could keep up.
+
+Let's take a look at how this plays out as we increase the number of requests per second:
+
+![](img/rps_vs_time.png)
+
+So, as we increase the number of requests per second, lxml.html is the only parser that can keep up with our hypothetical scrape.
+
+## Conclusion
+
+One one hand, performance isn't going to make or break your scrape.  If you're scraping a small number of pages, or are dealing with a slow site or rate limit, the difference between the fastest and slowest parsers is going to be negligible.
+
+In practice, the real payoffs of using a faster parser are going to be felt the most during development. If you're using a local cache while scraping, your requests per second are nearly limitless.  This means that the speed of your parser is going to be the limiting factor in how fast you can iterate on your scrape.
+
+In a ~1000 page scrape from cache of pages similar to our final benchmark, a full trial run would take less than 15 seconds while a full trial run with `html5lib.parser` would take nearly 3 minutes.  At ~10000 pages the difference between the shortest and longest is almost half an hour.
