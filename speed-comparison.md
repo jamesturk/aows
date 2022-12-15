@@ -273,3 +273,4 @@ The results were interesting, after a sample run to warm the cache, the results 
 | BeautifulSoup\[html.parser] | 1.2 |
 | BeautifulSoup\[html5lib]    | 1.2 |
 | BeautifulSoup\[lxml]        | 1.2 |
+

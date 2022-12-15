@@ -1,10 +1,10 @@
 [tool.poetry]
-name = "extraction-test"
+name = "scraping_experiments"
 version = "0.1.0"
 description = ""
 authors = ["James Turk <dev@jamesturk.net>"]
 readme = "README.md"
-packages = [{include = "extraction_test"}]
+packages = [{include = "scraping_experiments"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"

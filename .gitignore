@@ -1,3 +1,4 @@
 *.pyc
 cache/
 .vscode
+.ipynb_checkpoints/

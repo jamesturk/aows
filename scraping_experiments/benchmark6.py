@@ -1,5 +1,5 @@
 import requests
-from implementations import Lxml, BSoup
+from .implementations import Lxml, BSoup
 
 _cache = {}
 
