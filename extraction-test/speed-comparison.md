@@ -57,49 +57,67 @@ root = BeautifulSoup(html, 'lxml')
   # or 'html.parser' or 'html5lib'
 ```
 
-![Parse Benchmark 1](speed-benchmark1.png)
-![Parse Benchmark 2](speed-benchmark2.png)
+![](graph1-errors.png)
 
-You can see the relative speeds are fairly consistent between the four implementations.
+This first test highlighted two issues, first was that the html5test page was so small it didn't even register on the graph.  
+Second, something weird is going on with lxml.html and the NBA example, it kept giving outliers.  We'll return to that later when we look at leniency.
 
-As you can see, lxml is significantly faster than the others.  Even when BeautifulSoup is using lxml as the parser, it is about 10x slower than using lxml directly.
+![](graph2-load_dom-html5test.png)
+
+Taking a look at a zoomed in graph with just html5test, it is clear the relative speeds are about the same between the different test pages.
+
+At this point in the experiment I decided to just use asha_bhosle and python.  Additional pages only cluttered up the graphs, and two felt like enough to show the degree of consistency between pages.
+
+![load_dom](load_dom.png)
+
+As you can see looking at this final graph, lxml is significantly faster than the others.  Even when BeautifulSoup is using lxml as the parser, it is about 10x slower than using lxml directly. html5lib is about **20x slower** than lxml on parse_dom.
 
 Relative Speeds:
 
 | Parser | Speed |
 | --- | --- |
 | lxml | 1.0 |
-| BeautifulSoup (lxml) | 10x |
-| BeautifulSoup (html.parser) | 14x |
-| BeautifulSoup (html5lib) | 33x |
+| BeautifulSoup (lxml) | 7x |
+| BeautifulSoup (html.parser) | 9x |
+| BeautifulSoup (html5lib) | 20x |
 
 ### Benchmark #2 - Extracting Links
 
-This benchmark uses a native method to extract all of the links from the pages.
+This benchmark uses each library to find all `<a>` tags with an `href` attribute.  This is a common task for scrapers. 
 
 lxml:
 
 ```python
-links = root.xpath('//a/@href')
+# in lxml, XPath is the native way to do this
+links = root.xpath('//a[@href]')
 ```
 
 BeautifulSoup:
 
 ```python
+# in BeautifulSoup, you'd typically use find_all
 links = root.find_all('a', href=True)
 ```
 
+The results here are similar to the first benchmark, lxml is significantly faster than the others:
+
+![links_natural](links_natural.png)
+
+I added code to count the number of links found as well, to make sure the two implementations were equivalent.  This surfaced more issues with lxml's parsing of the NBA page.  (Heavy-handed foreshadowing of future content.) For the other pages, lxml was about 6x faster than all BeautifulSoup implementations.
+
+Furthermore, the three BeautifulSoup implementations are virtually identical in speed. This was interesting, it looks like BeautifulSoup might be using its own implementation of `find_all` instead of taking advantage of lxml's faster alternatives.
+
 ### Benchmark #3 - Extracting Links (CSS)
 
-This benchmark uses CSS Selectors to extract all of the links from the pages.
+I figured it'd be good to take a look at another way of getting the same data. This time we'll use CSS Selectors to find all `<a>` tags with an `href` attribute.
+
+For lxml to support this feature, it needs the [cssselect](https://pypi.org/project/cssselect/) library installed.
 
 lxml:
 
 ```python
 links = root.cssselect('a[href]')
 ```
-
-**Note: lxml does not support CSS Selectors natively.  It uses the [cssselect](https://pypi.org/project/cssselect/) library.  This library is written in Python and is not as fast as lxml's native XPath implementation.**
 
 BeautifulSoup:
 
@@ -108,25 +126,62 @@ BeautifulSoup:
 links = root.select('a[href]')
 ```
 
+It is clear at this point, `lxml` is probably going to win every benchmark. 
+
+![links_css](links_css.png)
+
+ It is about 12x faster than BeautifulSoup's CSS Selector implementation.
+
+Furthermore, CSS Selectors are just as fast in lxml as XPath which is good news if you prefer using them.
+
+TODO: talk about implementation
+
 ### Benchmark #4 - Counting Elements
 
-For this benchmark we'll walk the DOM tree and count the number of elements.
+For this benchmark we'll walk the DOM tree and count the number of elements.  DOM Traversal is just about the worst way to get data out of HTML, but sometimes it is necessary.
+
+There are multiple ways to walk the entire tree, but I figured I'd do it naively.  I'll recursively walk the tree and count the number of elements encountered.
+
+My first attempt looked like this:
 
 lxml:
 
 ```python
-count = 0
-for _ in root.iter():
-    count += 1
+  elements = []
+  def count(element):
+      elements.append(element)
+      for child in element.getchildren():
+          count(child)
+  count(root)
 ```
 
 BeautifulSoup:
 
 ```python
-count = 0
-for _ in root.recursiveChildGenerator():
-    count += 1
+  elements = []
+  def count(element):
+      elements.append(element)
+      for child in element.children:
+          count(child)
+  count(root)
 ```
+
+But when comparing the results, I saw this
+
+| Parser | Example | Elements |
+| --- | --- | --- |
+| lxml | asha_bhosle | 38458 |
+| lxml | python | 34944 |
+| BeautifulSoup\[html.parser] |  asha_bhosle |   97,786
+| BeautifulSoup\[html.parser]  |      python |   87,949
+| BeautifulSoup\[html5lib]   | asha_bhosle  |  97,783
+| BeautifulSoup\[html5lib]  |     python   | 87,973
+| BeautifulSoup\[lxml]  | asha_bhosle   | 97,785
+| BeautifulSoup\[lxml]  |     python   | 87,947
+
+This was no good, lxml found less than half the number of elements that BeautifulSoup did.  Furthermore, BeautifulSoup wasn't consistent between parsers.
+
+Using other methods like `iter()` or `descendants` didn't help either.  I eventually figured out that lxml was only counting elements that had children.  This is because `getchildren()` only returns elements that have children, while `children` returns all elements.
 
 ### Benchmark #5 - Extracting Text
 
