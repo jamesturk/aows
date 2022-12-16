@@ -1,11 +1,12 @@
 # node comparison
+from .implementations import Lxml, BSoup
 
 lx = Lxml()
 lx.pre_parse()
 bsoup = BSoup("html.parser")
 bsoup.pre_parse()
 
-lxml_elems = lx.count_elements("html5test") 
+lxml_elems = lx.count_elements("html5test")
 bsoup_elems = bsoup.count_elements("html5test")
 
 print(len(lxml_elems), len(bsoup_elems))

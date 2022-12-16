@@ -1,5 +1,10 @@
+parsing-speed:
+    poetry run python -m scraping_experiments.parsing.speed
 
-memory:
+parsing-memory:
+    poetry run python -m scraping_experiments.parsing.memory
+
+memray:
     rm output.bin memray-flamegraph-output.html
     poetry run memray run -o output.bin -m scraping_experiments.parsing.memory_benchmark
     poetry run memray flamegraph output.bin

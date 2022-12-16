@@ -76,4 +76,4 @@ def show_results(df, method, examples=None):
 bdf = run_all_benchmarks()
 
 for func, _ in methods:
-    show_results(bdf, func, ["asha_bhosle", "python"])
+    show_results(bdf, func, ["asha_bhosle", "pyindex"])

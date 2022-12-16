@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup, Tag
 
 
 class Base(ABC):
-    examples = ["asha_bhosle", "html5test", "nba", "python"]
+    examples = ["asha_bhosle", "html5test", "nba", "pyindex"]
 
     def __init__(self):
         self.html = {}

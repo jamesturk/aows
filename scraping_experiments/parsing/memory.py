@@ -1,7 +1,9 @@
-from .implementations import Lxml, BSoup
 import pandas as pd
 import seaborn as sns
+import matplotlib as mpl
 from matplotlib import pyplot as plt
+
+# from .implementations import Lxml, BSoup
 
 # lx = Lxml()
 # bs_hp = BSoup("html.parser")
@@ -18,10 +20,10 @@ from matplotlib import pyplot as plt
 def draw_graph():
     # stats based on running above through memray
     memray_stats = [
-        {"parser": "lxml", "example": "python", "mem": 16.8},
-        {"parser": "BeautifulSoup[html.parser]", "example": "python", "mem": 38.2},
-        {"parser": "BeautifulSoup[html5lib]", "example": "python", "mem": 38.3},
-        {"parser": "BeautifulSoup[lxml]", "example": "python", "mem": 47.9},
+        {"parser": "lxml", "example": "pyindex", "mem": 16.8},
+        {"parser": "BeautifulSoup[html.parser]", "example": "pyindex", "mem": 38.2},
+        {"parser": "BeautifulSoup[html5lib]", "example": "pyindex", "mem": 38.3},
+        {"parser": "BeautifulSoup[lxml]", "example": "pyindex", "mem": 47.9},
         {"parser": "lxml", "example": "asha_bhosle", "mem": 19.4},
         {"parser": "BeautifulSoup[html.parser]", "example": "asha_bhosle", "mem": 55.3},
         {"parser": "BeautifulSoup[html5lib]", "example": "asha_bhosle", "mem": 55.3},
@@ -41,12 +43,13 @@ def draw_graph():
     fig = sns.barplot(data=df, x="example", y="mem", hue="parser")
     fig.set_ylabel(r"Memory (MiB)")
     fig.set_xlabel("Example HTML")
+    sns.move_legend(fig, "upper left", bbox_to_anchor=(1, 1))
 
     plt.title("Memory Comparison")
     plt.savefig(
         "img/memory_usage.png",
         dpi=200,
-        #    bbox_inches=mpl.transforms.Bbox([[0, 0], [8.3, 4.6]]),
+        bbox_inches=mpl.transforms.Bbox([[0, 0], [8.3, 4.6]]),
     )
 
 

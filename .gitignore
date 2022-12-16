@@ -2,3 +2,4 @@
 cache/
 .vscode
 .ipynb_checkpoints/
+output.bin
