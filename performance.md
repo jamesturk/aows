@@ -1,5 +1,8 @@
 # Comparing BeautifulSoup and lxml (Part 1: Performance)
 
+TODO https://beautiful-soup-4.readthedocs.io/en/latest/#improving-performance
+TODO add other libraries
+
 When people talk about libraries for writing
 web scrapers, the first thing they usually mention are the libraries for parsing HTML.
 
@@ -9,7 +12,7 @@ Beautiful Soup is not actually a parser in itself, but a wrapper around a number
 
 The conventional wisdom about these parsers is roughly:
 
-| Parser | Speed | How Lenient? |
+| Parser | Speed | Flexibility |
 | --- | --- | --- |
 | html.parser | Slow | Moderately |
 | lxml | Fast | Moderately |
@@ -17,12 +20,12 @@ The conventional wisdom about these parsers is roughly:
 
 I realized despite years of writing scrapers, I didn't know how well this wisdom had held up. Python has gotten a lot faster, perhaps BeautifulSoup was more competitive.
 
-Also, I've always found the "lenient" part of the conventional wisdom to be a bit vague.  What does "lenient" mean?  I've scraped a lot of terrible HTML with `lxml`, would it have been easier with `html5lib`?
+Also, I've always found the "flexibility" part of the conventional wisdom to be a bit vague.  What does flexible really mean?  I've scraped [a lot of terrible HTML](https://gitub.com/openstates/openstates-scrapers/) with `lxml`, would it have been easier with `html5lib`?
 
 I'm going to take a look at these libraries among a couple of dimensions:
 
 * Performance (Speed & Memory)
-* Leniency
+* Flexibility
 * Ease of Use & Features
 * Memory Usage
 
@@ -240,7 +243,7 @@ It is worth noting that the lengths here differed as well:
 
 For the pyindex example it is notable that html5lib and lxml.html are finding about 200,000 more characters than the other parsers.
 It's also quite strange that BeautifulSoup's lxml parser is finding the same number of characters as the html.parser, and not `lxml.html`.
-It'll be worth revisiting this when we get to evaluating leniency.
+It'll be worth revisiting this when we get to evaluating flexibility.
 
 ### Benchmark #6 - "Real World"
 
@@ -288,10 +291,9 @@ Finally, let's take a look at how much memory each parser uses while handling th
 
 | Example | Bytes | Tags | 
 | ------- | ----- | ---- |
-| asha_bhosle | 1,132,673 | |
-| pyindex | 1,683,137 | |
-| html5test | 18,992 | |
-TODO: add
+| asha_bhosle | 1,132,673 | ~38,450 |
+| pyindex | 1,683,137 | ~34,950 |
+| html5test | 18,992 | 218 |
 
 This is somewhat difficult to measure, as the memory usage of an object is not easily accessible from Python.  I used [memray](https://github.com/bloomberg/memray) to measure a sample piece of code that loaded each parser and parsed the sample pages.  To compare the memory usage between complex pages and simple pages, the sample code also loaded the html5test page 100 times.
 
@@ -311,7 +313,7 @@ In a 1,000 page scrape from cache of pages similar to our final benchmark, a ful
 
 Memory usage might also matter to you, if you are running your scraper on a small VPS or have unusually complex pages, memory usage could be a factor and that's another place where `lxml.html` shines.
 
-Next time, we'll take a look at how lenient each parser is, and how that affects your scrape.
+Next time, we'll take a look at how flexible each parser is, and how that affects your scrape.
 
 ## Notes
 
@@ -329,4 +331,4 @@ For the performance tests I grabbed four sample pages:
 * [List of Hindi songs recorded by Asha Bhosle](https://en.wikipedia.org/wiki/List_of_Hindi_songs_recorded_by_Asha_Bhosle) - At the time of writing, the largest Wikipedia page.
 * [HTML5 Test Page](https://html5test.com/index.html) - A moderately sized page with lots of HTML5 features.
 
-All source code for these experiments is in [scraping-experiments](https://github.com/jamesturk/scraping-experiments/)
+All source code for these experiments is in [scraping-experiments](https://github.com/jamesturk/scraping-experiments/).
