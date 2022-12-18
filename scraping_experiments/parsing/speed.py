@@ -6,7 +6,7 @@ import timeit
 from .implementations import BSoup, Lxml, Selectolax, SelectoLexbor
 
 methods = [
-    ("load_dom", 2),
+    ("load_dom", 5),
     ("links_natural", 10),
     ("links_css", 10),
     ("count_elements", 10),
@@ -66,9 +66,12 @@ def show_results(df, method, examples=None):
     ax.set_title(f"{method} (runs={filtered['count'].iloc[0]})")
     sns.move_legend(ax, "upper left", bbox_to_anchor=(1, 1))
 
+    print(f"\n\n## {method}")
+
     means = filtered.groupby("implementation").mean("average_time")
-    means /= means.loc["lxml.html"]
-    print(means)
+    means["normalized"] = means["average_time"] / means["average_time"].min()
+    means = means[["average_time", "normalized"]]
+    print(means.to_markdown())
 
     comparison = filtered[["implementation", "example", "results"]]
     comparison = comparison.pivot(
