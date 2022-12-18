@@ -1,55 +1,35 @@
 # Parsing: Performance
 
 TODO https://beautiful-soup-4.readthedocs.io/en/latest/#improving-performance
-TODO add other libraries
 
-When people talk about libraries for writing
-web scrapers, the first thing they usually mention are the libraries for parsing HTML.
-
-In Python that means [Beautiful Soup](https://www.crummy.com/software/BeautifulSoup/) and [lxml](http://lxml.de/).
-
-Beautiful Soup is not actually a parser in itself, but a wrapper around a number of different parsers. It's [documentation](https://www.crummy.com/software/BeautifulSoup/bs4/doc/#installing-a-parser) explains how to pick a parser and offers some conventional wisdom about which you should pick.  The default parser is [html.parser](https://docs.python.org/3/library/html.parser.html), which is part of the Python standard library. You can also use [lxml](http://lxml.de/) or `html5lib`.
-
-The conventional wisdom about these parsers is roughly:
-
-| Parser | Speed | Flexibility |
-| --- | --- | --- |
-| html.parser | Slow | Moderately |
-| lxml | Fast | Moderately |
-| html5lib | Slowest | Most |
-
-I realized despite years of writing scrapers, I didn't know how well this wisdom had held up. Python has gotten a lot faster, perhaps BeautifulSoup was more competitive.
-
-Also, I've always found the "flexibility" part of the conventional wisdom to be a bit vague.  What does flexible really mean?  I've scraped [a lot of terrible HTML](https://gitub.com/openstates/openstates-scrapers/) with `lxml`, would it have been easier with `html5lib`?
-
-I'm going to take a look at these libraries among a couple of dimensions:
-
-* Performance (Speed & Memory)
-* Flexibility
-* Ease of Use & Features
-* Memory Usage
 
 ## Speed Comparison
 
-To be clear, speed is rarely the most important part of choosing a scraping library. We'll start there because it is the most straightforward to measure and will give us an opportunity to see some sample code for each.
+It makes sense to acknowledge that speed is rarely the most important part of choosing a scraping library. While it is generally true that scrapers are limited by the speed of the connection to the target website, the speed of different parsers can have a significant impact on the performance of your scraper.
 
-While it is generally true that scrapers are limited by the speed of the connection to the target website, the speed of different parsers can have a significant impact on the performance of your scraper.
+### #1 - Parsing HTML
 
-### Benchmark #1 - Parsing HTML
-
-The initial parse of the HTML is the most expensive part of the scraping process.  This benchmark measures the time it takes to parse the HTML using each library.
+The initial parse of the HTML is likely the most expensive part of the scraping process. This benchmark measures the time it takes to parse the HTML using each library.
 
 #### Code
 
-lxml.html:
-```python
-root = lxml.html.fromstring(html)
-```
-BeautifulSoup:
-```python
-root = BeautifulSoup(html, 'lxml')
-  # or 'html.parser' or 'html5lib'
-```
+=== "lxml.html"
+
+    ```python
+    root = lxml.html.fromstring(html)
+    ```
+=== "BeautifulSoup"
+
+    ```python
+    root = BeautifulSoup(html, 'lxml')
+      # or 'html.parser' or 'html5lib'
+    ```
+=== "Selectolax"
+
+    ```python
+    root = selectolax.parser.HTMLParser(html)
+    # or selectolax.lexbor.LexborParser(html)
+    ```
 
 #### Results
 
@@ -76,25 +56,30 @@ Taking a look at a graph with just html5test, it is clear the relative speeds ar
 
 Parsing this page is so much faster than the larger more complex pages used for the rest of the tests that it basically disappeared on all graphs.
 
-### Benchmark #2 - Extracting Links
+### #2 - Extracting Links
 
 This benchmark uses each library to find all `<a>` tags with an `href` attribute.  This is a common task for scrapers. 
 
 #### Code
 
-lxml.html:
+=== "lxml.html"
 
-```python
-# in lxml, XPath is the native way to do this
-links = root.xpath('//a[@href]')
-```
+    ```python
+    # in lxml, XPath is the native way to do this
+    links = root.xpath('//a[@href]')
+    ```
+=== "BeautifulSoup"
 
-BeautifulSoup:
+    ```python
+    # in BeautifulSoup, you'd typically use find_all
+    links = root.find_all('a', href=True)
+    ```
+=== "Selectolax"
 
-```python
-# in BeautifulSoup, you'd typically use find_all
-links = root.find_all('a', href=True)
-```
+    ```python
+    # Selectolax is essentially a CSS Selector implementation
+    links = root.css('a[href]')
+    ```
 
 #### Results
 
@@ -104,7 +89,7 @@ The results here are similar to the first benchmark, lxml is significantly faste
 
 Furthermore, the three BeautifulSoup implementations are virtually identical in speed. This was interesting, it looks like BeautifulSoup is likely using its own implementation of `find_all` instead of taking advantage of lxml's faster alternatives.
 
-### Benchmark #3 - Extracting Links (CSS)
+### #3 - Extracting Links (CSS)
 
 I wanted to take a look at another way of getting the same data. This time we'll use CSS Selectors to find all `<a>` tags with an `href` attribute.
 
@@ -112,18 +97,21 @@ I wanted to take a look at another way of getting the same data. This time we'll
 
 Note: For lxml to support this feature, it needs the [cssselect](https://pypi.org/project/cssselect/) library installed.
 
-lxml.html:
+=== "lxml.html"
 
-```python
-links = root.cssselect('a[href]')
-```
+    ```python
+    links = root.cssselect('a[href]')
+    ```
+=== "BeautifulSoup"
 
-BeautifulSoup:
+    ```python
+    links = root.select('a[href]')
+    ```
+=== "Selectolax" 
 
-```python
-# select all a tags with an href attribute
-links = root.select('a[href]')
-```
+    ```python
+    links = root.css('a[href]')
+    ```
 
 #### Results
 
@@ -133,7 +121,7 @@ lxml.html once again was a clear winner.  It is about 12x faster than BeautifulS
 
 Furthermore, CSS Selectors are just as fast in lxml as XPath which is good news if you prefer using them.
 
-### Benchmark #4 - Counting Elements
+### #4 - Counting Elements
 
 For this benchmark we'll walk the DOM tree and count the number of elements.  DOM Traversal is just about the worst way to get data out of HTML, but sometimes it is necessary.
 
@@ -143,27 +131,40 @@ There are multiple ways to walk the entire tree, but I figured I'd do it naively
 
 My first attempt looked like this:
 
-lxml.html:
+=== "lxml.html"
 
-```python
-  elements = []
-  def count(element):
-      elements.append(element)
-      for child in element.getchildren():
-          count(child)
-  count(root)
-```
+    ```python
+      elements = []
+      def count(element):
+          elements.append(element)
+          for child in element.getchildren():
+              count(child)
+      count(root)
+    ```
+=== "BeautifulSoup"
 
-BeautifulSoup:
+    ```python
+      elements = []
+      def count(element):
+          # beautiful soup includes text nodes
+          # which we need to filter out
+          if isinstance(element, bs4.Tag):
+            elements.append(element)
+            for child in element.children:
+                count(child)
+      count(root)
+    ```
+=== "Selectolax"
 
-```python
-  elements = []
-  def count(element):
-      elements.append(element)
-      for child in element.children:
-          count(child)
-  count(root)
-```
+    ```python
+      elements = []
+      def count(element):
+          elements.append(element.tag)
+          for child in element.iter():
+              count(child)
+      count(root)
+    ```
+
 
 But when comparing the results to make sure the implementations were equivalent, I saw this:
 
@@ -204,7 +205,7 @@ There are still small differences, especially with html5lib.  We'll explore what
 
 Wow! BeautifulSoup wins, it is about 30% faster to do this traversal with BeautifulSoup. The difference here is of course much smaller, but I'd assumed we wouldn't see BeautifulSoup win any of these benchmarks by this point.
 
-### Benchmark #5 - Extracting Text
+### #5 - Extracting Text
 
 For this benchmark, we'll use each parser's built in text extraction function to extract the text from the pages.
 
@@ -214,19 +215,25 @@ For this benchmark in particular, we'll extract text from each of the `<ul>` tag
 
 #### Code
 
-lxml.html: 
+=== "lxml.html"
 
-```python
-uls = root.xpath('//ul')
-text = "".join([ul.text_content() for ul in uls])
-```
+    ```python
+    uls = root.xpath('//ul')
+    text = "".join([ul.text_content() for ul in uls])
+    ```
+=== BeautifulSoup
 
-BeautifulSoup:
+    ```python
+    uls = root.find_all('ul')
+    text = "".join([ul.get_text() for ul in uls])
+    ```
 
-```python
-uls = root.find_all('ul')
-text = "".join([ul.get_text() for ul in uls])
-```
+=== "Selectolax"
+
+    ```python
+    uls = root.css('ul')
+    text = "".join([ul.text() for ul in uls])
+    ```
 
 #### Results
 
@@ -245,7 +252,7 @@ For the pyindex example it is notable that html5lib and lxml.html are finding ab
 It's also quite strange that BeautifulSoup's lxml parser is finding the same number of characters as the html.parser, and not `lxml.html`.
 It'll be worth revisiting this when we get to evaluating flexibility.
 
-### Benchmark #6 - "Real World"
+### #6 - "Real World"
 
 So far we've been looking at very simple benchmarks of common methods. It seems clear that lxml.html is the fastest, but how much would that speed matter in a real world scenario?
 
@@ -319,12 +326,15 @@ Next time, we'll take a look at how flexible each parser is, and how that affect
 
 All benchmarks were evaluated on a 2021 MacBook Pro with an Apple M1 Pro.
 
-Python: 3.10.7 (installed via pyenv)
-BeautifulSoup: 4.11.1
-lxml: 4.9.1
-cssselect: 1.2.0
+| Component | Version |
+| --------- | ------- |
+| Python | 3.10.7 (installed via pyenv) |
+| BeautifulSoup | 4.11.1 |
+| lxml | 4.9.1 |
+| cssselect |  1.2.0 |
+| selectolax | 0.3.11| 
 
-For the performance tests I grabbed four sample pages:
+The sample pages referenced in the benchmarks are:
 
 * [Python Documentation Full Index](https://docs.python.org/3/genindex-all.html) - A fairly large page with lots of links.
 * [List of 2021-22 NBA Transactions](https://en.wikipedia.org/wiki/List_of_2021%E2%80%9322_NBA_season_transactions) - A very large Wikipedia page with a huge table.

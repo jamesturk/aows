@@ -156,9 +156,8 @@ class Selectolax(Base):
 
         def count(element):
             elements.append(element.tag)
-            if element.child:
-                for child in element.child.iter():
-                    count(child)
+            for child in element.iter():
+                count(child)
 
         count(self.root[example].root)
         return elements
