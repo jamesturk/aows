@@ -17,18 +17,36 @@ A few years later, `scrapy` came along. It wasn't mature enough for us to adopt 
 
 The goal of this series is to start trying to put some of that knowledge into one place, and exploring the Python scraping ecosystem.
 
-### Why not Scrapy?
+## How to Use This Book
 
-Inevitably this question comes up. One answer is that it didn't exist when we started the project, at least not as a public project.
-As far as why we never switched, scrapy is a heavyweight system, filled with opinionated choices.  By the time it became a popular library, we had already built our own system, so we stuck with what we had.
+This book is a work in progress, the table of contents is aspirational.
 
-So would I use it today? Probably not.
+The book is structured into three major parts:
 
-`scrapy` borrows ideas and its core philosophy from Django. It is an opinionated framework, not particularly suited to being used in part.
-Sometimes that's exactly what you want, but it isn't what we wanted.  We wanted to be able to swap out parts of the system as needed, and `scrapy` is not designed for that.
+**Part 1: Understanding Web Scraping**
 
-If you like `scrapy`, by all means, use it!
+This section of the book aims to cover broad topics in web scraping. This isn't particularly focused on Python, but rather on the general concepts of web scraping.
 
-If you, like me, prefer to use lightweight library for scraping, you might be more interested in the libraries I aim to compare here. These libraries give you more control over the full process and are easier to integrate into existing systems.  Scrapy is a great library, but it's not a great fit for every project.
+* **Chapter 1: Web Scraping 101** - A quick overview of the basics of web scraping.
+* **Chapter 2: [Scraping Philosophy](philosophy.md)** - A discussion of the philosophy behind writing scrapers.
+* **Chapter 4: Best Practices** - Writing resilient & sustainable scrapers.
+* **Chapter 5: Ethical & Legal Guidelines** - A discussion of ethical & legal guidelines for scraping.
 
-I prefer to use a lightweight library for scraping, and then build my own system on top of that.  I like to have control over the entire process, and I like to be able to easily switch out parts of the system as needed.  Scrapy is a great library, but it's not a great fit for every project.
+**Part 2: Python Scraping Ecosystem**
+
+These chapters are focused on the Python scraping ecosystem.  Each chapter will compare a few libraries, and discuss the pros & cons of each.
+
+* **Chapter 6: [Making Requests](requests/libraries.md)** - Various libraries for making HTTP requests.
+* **Chapter 7: [Parsing HTML](parsing/intro.md) ** - Comparing various libraries for parsing HTML.
+* **Chapter 8: Other Libraries** - Other libraries that are useful for scraping.
+* **Chapter 9: Scrapy** - A discussion of Scrapy.
+
+**Part 3: Advanced Concepts**
+
+These chapters discuss more advanced topics in web scraping. Not every scraper will need to use these, but they're useful to know about as your scrapers grow more advanced.
+
+* **Chapter 10: Data Validation** - A discussion of data validation.
+* **Chapter 11: Deploying Scrapers** - A discussion of deploying scrapers.
+* **Chapter 12: Browser Automation** - A discussion of browser automation.
+
+**Appendix A: XPath & CSS Selectors**

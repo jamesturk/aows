@@ -1,6 +1,28 @@
-site_name: Scraping Experiments
+site_name: Web Scraping in Python
+# site_url: 
+site_author: James Turk
+site_description: Exploration of the Python scraping ecosystem.
+copyright: <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+# repo_url: 
+# repo_name: jamesturk/
+# edit_url: edit/main/docs
+
 theme: 
+# logo:
   name: material
+  palette:
+    - scheme: default
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to dark mode
+    - scheme: slate
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to light mode
 markdown_extensions:
   - tables
   - admonition
@@ -15,15 +37,14 @@ nav:
   - Making Requests:
     - requests/libraries.md
     - requests/caching.md
-  - Parsing HTML:
+  - Parsing Libraries:
     - parsing/intro.md
     - parsing/features.md
     - parsing/performance.md
     - parsing/bad_html.md
-  # object validation?
-  # ORM/etc.
-  # git scraping
-  # running scrapers
-  - License: license.md
-  - About: license.md
-copyright: <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+  - Wrangling HTML:
+    - Working with Messy HTML: coming-soon.md # wrangling/messy-html.md
+    - JavaScript: coming-soon.md # wrangling/basic-js.md
+    - PDFs: coming-soon.md # wrangling/pdfs.md
+    - Advanced Strategies: coming-soon.md # wrangling/more.md
+  - About: about.md

@@ -13,6 +13,7 @@ For Open States, we knew that our goal was to be able to run our scrapers contin
 But I've found scrapers are rarely as ephemeral as their authors intend. I've seen many scrapers someone wrote years ago to grab some data for a one-off project wound up being a core part of someone's data pipeline long after the original author departed the team. The thought may horrify the original author, who assumed the code would be thrown away. With good enough tools, and the right philosophy, you can make this prospect slightly less terrifying.
 
 Ultimately our core requirements shaped a lot of this philosophy:
+
 * We needed to be able to run our scrapers continuously, to create an ongoing stream of legislative data updating our database.
 * Our scrapers were necessarily fragile, we were scraping specific legislative metadata, not just collecting full text. We couldn't afford to be imprecise.
 * As an open source project dependent upon volunteers, we needed to be able to easily onboard new contributors.
@@ -20,7 +21,19 @@ Ultimately our core requirements shaped a lot of this philosophy:
 
 We built a lot of tools to help us with these goals, and over the years we built up a lot of knowledge about how to build reliable scrapers.
 
-## Scrapers Live 
+## Maintainable Code
+
+Selectors vs. Traversal
+
+## Separate Steps
+
+## Fail Fast
+
+## Store Sources
+
+## Code : Page Structure
+
+## Scrapers Stick Around
 
 ## Scrapers Are Living Things
 
