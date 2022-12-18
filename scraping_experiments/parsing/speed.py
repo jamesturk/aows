@@ -3,14 +3,14 @@ import seaborn as sns
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 import timeit
-from .implementations import BSoup, Lxml, Selectolax
+from .implementations import BSoup, Lxml, Selectolax, SelectoLexbor
 
 methods = [
-    ("load_dom", 5),
-    ("links_natural", 100),
-    ("links_css", 100),
-    ("count_elements", 100),
-    ("extract_text", 100),
+    ("load_dom", 2),
+    ("links_natural", 10),
+    ("links_css", 10),
+    ("count_elements", 10),
+    ("extract_text", 10),
 ]
 
 
@@ -21,6 +21,7 @@ def run_all_benchmarks():
         BSoup("html5lib"),
         BSoup("lxml"),
         Selectolax(),
+        SelectoLexbor(),
     ]
     runs = []
     for impl in implementations:
@@ -32,7 +33,11 @@ def run_all_benchmarks():
                     globals={"method": getattr(impl, method), "example": example},
                     number=count,
                 )
-                results = len(getattr(impl, method)(example))
+                if method == "load_dom":
+                    # no length for load_dom
+                    results = 1
+                else:
+                    results = len(getattr(impl, method)(example))
                 runs.append(
                     {
                         "implementation": str(impl),
@@ -54,7 +59,7 @@ def show_results(df, method, examples=None):
     sns.set_theme()
     filtered = df[df.method == method]
     if examples:
-        filtered = filtered[(df.example.isin(examples))]
+        filtered = filtered.loc[(df.example.isin(examples))]
     ax = sns.barplot(filtered, x="example", y="average_time", hue="implementation")
     ax.set_ylabel("Avg. Time (s)")
     ax.set_xlabel("Example HTML")
@@ -73,7 +78,7 @@ def show_results(df, method, examples=None):
 
     # save image to file
     plt.savefig(
-        f"img/{method}.png",
+        f"docs/img/{method}.png",
         dpi=150,
         bbox_inches=mpl.transforms.Bbox([[0, 0], [8.3, 4.6]]),
     )

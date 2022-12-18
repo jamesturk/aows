@@ -3,6 +3,7 @@ import pathlib
 import lxml.html
 from bs4 import BeautifulSoup, Tag
 from selectolax.parser import HTMLParser
+from selectolax.lexbor import LexborHTMLParser
 
 
 class Base(ABC):
@@ -154,13 +155,21 @@ class Selectolax(Base):
         elements = []
 
         def count(element):
-            if isinstance(element, Tag):
-                elements.append(element.name)
-                for child in getattr(element, "children", []):
+            elements.append(element.tag)
+            if element.child:
+                for child in element.child.iter():
                     count(child)
 
-        count(self.root[example])
+        count(self.root[example].root)
         return elements
 
     def __repr__(self):
-        return f"Selectolax"
+        return "Selectolax[modest]"
+
+
+class SelectoLexbor(Selectolax):
+    def parse_dom(self, html):
+        return LexborHTMLParser(html)
+
+    def __repr__(self):
+        return "Selectolax[lexbor]"
