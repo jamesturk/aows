@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 import pathlib
 import lxml.html
 from bs4 import BeautifulSoup, Tag
+from selectolax.parser import HTMLParser
 
 
 class Base(ABC):
@@ -30,6 +31,18 @@ class Base(ABC):
     def all_text(self, tree):
         pass
 
+    @abstractmethod
+    def links_natural(self, example):
+        pass
+
+    @abstractmethod
+    def links_css(self, example):
+        pass
+
+    @abstractmethod
+    def count_elements(self, example):
+        pass
+
     def pre_parse(self):
         # Pre-parse the HTML to allow us to benchmark individual selections
         self.root = {}
@@ -39,6 +52,9 @@ class Base(ABC):
     def extract_text(self, example):
         nodes = self.find_tags(self.root[example], "ul")
         return "".join(self.all_text(node) for node in nodes)
+
+    def load_dom(self, example):
+        return self.parse_dom(self.html[example])
 
 
 class Lxml(Base):
@@ -54,13 +70,8 @@ class Lxml(Base):
     def all_text(self, tree):
         return tree.text_content()
 
-    # benchmarks 1-5
-
-    def load_dom(self, example):
-        return lxml.html.fromstring(self.html[example])
-
     def links_natural(self, example):
-        return self.root[example].xpath("//a/@href")
+        return self.root[example].xpath("//a[@href]")
 
     def links_css(self, example):
         return self.root[example].cssselect("a[href]")
@@ -76,7 +87,6 @@ class Lxml(Base):
 
         count(self.root[example])
         return elements
-        # return list(self.root[example].iter())
 
     def __repr__(self):
         return "lxml.html"
@@ -99,11 +109,6 @@ class BSoup(Base):
     def all_text(self, tree):
         return tree.get_text()
 
-    # benchmarks 1-5
-
-    def load_dom(self, example):
-        return BeautifulSoup(self.html[example], self.parser)
-
     def links_natural(self, example):
         return self.root[example].find_all("a", href=True)
 
@@ -121,7 +126,41 @@ class BSoup(Base):
 
         count(self.root[example])
         return elements
-        # return list(self.root[example].recursiveChildGenerator())
 
     def __repr__(self):
         return f"BeautifulSoup[{self.parser}]"
+
+
+class Selectolax(Base):
+    def parse_dom(self, html):
+        return HTMLParser(html)
+
+    def find_tags(self, tree, tag):
+        return tree.css(f"{tag}")
+
+    def all_nodes(self, tree):
+        return [e for e in tree.iter()]
+
+    def all_text(self, tree):
+        return tree.text()
+
+    def links_natural(self, example):
+        return self.root[example].css("a[href]")
+
+    def links_css(self, example):
+        return self.root[example].css("a[href]")
+
+    def count_elements(self, example):
+        elements = []
+
+        def count(element):
+            if isinstance(element, Tag):
+                elements.append(element.name)
+                for child in getattr(element, "children", []):
+                    count(child)
+
+        count(self.root[example])
+        return elements
+
+    def __repr__(self):
+        return f"Selectolax"

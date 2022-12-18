@@ -3,7 +3,7 @@ import seaborn as sns
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 import timeit
-from .implementations import BSoup, Lxml
+from .implementations import BSoup, Lxml, Selectolax
 
 methods = [
     ("load_dom", 5),
@@ -15,7 +15,13 @@ methods = [
 
 
 def run_all_benchmarks():
-    implementations = [Lxml(), BSoup("html.parser"), BSoup("html5lib"), BSoup("lxml")]
+    implementations = [
+        Lxml(),
+        BSoup("html.parser"),
+        BSoup("html5lib"),
+        BSoup("lxml"),
+        Selectolax(),
+    ]
     runs = []
     for impl in implementations:
         impl.pre_parse()
