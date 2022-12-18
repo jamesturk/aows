@@ -1,4 +1,4 @@
-# Comparing BeautifulSoup and lxml (Part 1: Performance)
+# Parsing: Performance
 
 TODO https://beautiful-soup-4.readthedocs.io/en/latest/#improving-performance
 TODO add other libraries
@@ -53,7 +53,7 @@ root = BeautifulSoup(html, 'lxml')
 
 #### Results
 
-![load_dom](img/load_dom.png)
+![load_dom](/img/load_dom.png)
 
 As you can see looking at this final graph, lxml is significantly faster than the others.  Even when BeautifulSoup is using lxml as the parser, it is about 10x slower than using lxml directly. html5lib is about **20x slower** than lxml on parse_dom.
 
@@ -70,7 +70,7 @@ Relative Speeds:
 
 In an earlier draft of the benchmarks, I used a smaller page to test the parsers.  The results were similar, but not as dramatic:
 
-![](img/graph2-load_dom-html5test.png)
+![](/img/graph2-load_dom-html5test.png)
 
 Taking a look at a graph with just html5test, it is clear the relative speeds are about the same between the different test pages.
 
@@ -98,7 +98,7 @@ links = root.find_all('a', href=True)
 
 #### Results
 
-![links_natural](img/links_natural.png)
+![links_natural](/img/links_natural.png)
 
 The results here are similar to the first benchmark, lxml is significantly faster than the others:
 
@@ -127,7 +127,7 @@ links = root.select('a[href]')
 
 #### Results
 
-![links_css](img/links_css.png)
+![links_css](/img/links_css.png)
 
 lxml.html once again was a clear winner.  It is about 12x faster than BeautifulSoup's CSS Selector implementation.
 
@@ -200,7 +200,7 @@ There are still small differences, especially with html5lib.  We'll explore what
 
 #### Results
 
-![](img/count_elements.png)
+![](/img/count_elements.png)
 
 Wow! BeautifulSoup wins, it is about 30% faster to do this traversal with BeautifulSoup. The difference here is of course much smaller, but I'd assumed we wouldn't see BeautifulSoup win any of these benchmarks by this point.
 
@@ -230,7 +230,7 @@ text = "".join([ul.get_text() for ul in uls])
 
 #### Results
 
-![](img/extract_text.png)
+![](/img/extract_text.png)
 
 lxml.html averaged 7x faster.
 
@@ -281,7 +281,7 @@ What if you were able to make 20 requests per second?  At that point, only lxml.
 
 Let's take a look at how this plays out as we increase the number of requests per second:
 
-![](img/rps_vs_time.png)
+![](/img/rps_vs_time.png)
 
 So, as we increase the number of requests per second, lxml.html is the only parser that can keep up with our hypothetical scrape.
 
@@ -297,7 +297,7 @@ Finally, let's take a look at how much memory each parser uses while handling th
 
 This is somewhat difficult to measure, as the memory usage of an object is not easily accessible from Python.  I used [memray](https://github.com/bloomberg/memray) to measure a sample piece of code that loaded each parser and parsed the sample pages.  To compare the memory usage between complex pages and simple pages, the sample code also loaded the html5test page 100 times.
 
-![](img/memory_usage.png)
+![](/img/memory_usage.png)
 
 One thing to note is that the memory usage seems to be correlated to complexity (i.e. number of tags), which makes sense.
 

@@ -1,0 +1,25 @@
+site_name: Scraping Experiments
+theme: 
+  name: material
+markdown_extensions:
+  - tables
+  - admonition
+extra_css:
+  - stylesheets/extra.css
+nav:
+  - introduction.md
+  - philosophy.md
+  - Making Requests:
+    - requests/libraries.md
+    - requests/caching.md
+    - requests/scrapelib.md
+  - Parsing HTML:
+    - parsing/features.md
+    - parsing/performance.md
+    - parsing/bad_html.md
+  # object validation?
+  # ORM/etc.
+  # git scraping
+  # running scrapers
+  - License: license.md
+  - About: license.md
