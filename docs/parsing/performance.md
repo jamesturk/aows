@@ -1,6 +1,5 @@
 # Parsing: Performance
 
-TODO https://beautiful-soup-4.readthedocs.io/en/latest/#improving-performance
 
 
 ## Speed Comparison
@@ -221,7 +220,7 @@ For this benchmark in particular, we'll extract text from each of the `<ul>` tag
     uls = root.xpath('//ul')
     text = "".join([ul.text_content() for ul in uls])
     ```
-=== BeautifulSoup
+=== "BeautifulSoup"
 
     ```python
     uls = root.find_all('ul')
@@ -330,9 +329,12 @@ All benchmarks were evaluated on a 2021 MacBook Pro with an Apple M1 Pro.
 | --------- | ------- |
 | Python | 3.10.7 (installed via pyenv) |
 | BeautifulSoup | 4.11.1 |
+| cchardet  |  2.1.7 | 
 | lxml | 4.9.1 |
 | cssselect |  1.2.0 |
 | selectolax | 0.3.11| 
+
+According to the [Beautiful Soup docs](https://beautiful-soup-4.readthedocs.io/en/latest/#improving-performance) installing `cchardet` is recommended for performance. These tests were run with `cchardet` installed to ensure a fair comparison, though it did not make a noticable difference in performance.
 
 The sample pages referenced in the benchmarks are:
 
