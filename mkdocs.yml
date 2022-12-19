@@ -1,4 +1,4 @@
-site_name: Web Scraping in Python
+site_name: Art of Web Scraping
 # site_url: 
 site_author: James Turk
 site_description: Exploration of the Python scraping ecosystem.
@@ -34,9 +34,9 @@ extra_css:
 nav:
   - introduction.md
   - philosophy.md
-  - Making Requests:
-    - requests/libraries.md
-    - requests/caching.md
+  # - Making Requests:
+  #   - requests/libraries.md
+  #   - requests/caching.md
   - Parsing Libraries:
     - parsing/intro.md
     - parsing/features.md

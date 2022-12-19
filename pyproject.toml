@@ -1,10 +1,10 @@
 [tool.poetry]
-name = "scraping_experiments"
+name = "aows"
 version = "0.1.0"
 description = ""
 authors = ["James Turk <dev@jamesturk.net>"]
 readme = "README.md"
-packages = [{include = "scraping_experiments"}]
+packages = [{include = "aows"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
