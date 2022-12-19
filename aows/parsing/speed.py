@@ -3,13 +3,14 @@ import seaborn as sns
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 import timeit
-from .implementations import BSoup, Lxml, Selectolax, SelectoLexbor
+from .implementations import BSoup, Lxml, Selectolax, SelectoLexbor, Parsel
+
 
 methods = [
-    ("load_dom", 5),
-    ("links_natural", 10),
-    ("links_css", 10),
-    ("count_elements", 10),
+    # ("load_dom", 5),
+    # ("links_natural", 10),
+    # ("links_css", 10),
+    ("count_nodes", 10),
     ("extract_text", 10),
 ]
 
@@ -17,6 +18,7 @@ methods = [
 def run_all_benchmarks():
     implementations = [
         Lxml(),
+        Parsel(),
         BSoup("html.parser"),
         BSoup("html5lib"),
         BSoup("lxml"),
@@ -28,6 +30,8 @@ def run_all_benchmarks():
         impl.pre_parse()
         for example in impl.examples:
             for method, count in methods:
+                if method in impl.skip:
+                    continue
                 time = timeit.timeit(
                     "method(example)",
                     globals={"method": getattr(impl, method), "example": example},
@@ -69,6 +73,8 @@ def show_results(df, method, examples=None):
     print(f"\n\n## {method}")
 
     means = filtered.groupby("implementation").mean("average_time")
+    # exclude near-zero values
+    means = means[means.average_time > 0.000001]
     means["normalized"] = means["average_time"] / means["average_time"].min()
     means = means[["average_time", "normalized"]]
     print(means.to_markdown())

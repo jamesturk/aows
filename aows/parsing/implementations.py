@@ -4,10 +4,12 @@ import lxml.html
 from bs4 import BeautifulSoup, Tag
 from selectolax.parser import HTMLParser
 from selectolax.lexbor import LexborHTMLParser
+from parsel import Selector
 
 
 class Base(ABC):
     examples = ["asha_bhosle", "html5test", "nba", "pyindex"]
+    skip = []
 
     def __init__(self):
         self.html = {}
@@ -40,15 +42,14 @@ class Base(ABC):
     def links_css(self, example):
         pass
 
-    @abstractmethod
-    def count_elements(self, example):
-        pass
-
     def pre_parse(self):
         # Pre-parse the HTML to allow us to benchmark individual selections
         self.root = {}
         for name, html in self.html.items():
             self.root[name] = self.load_dom(name)
+
+    def count_nodes(self, example):
+        return self.all_nodes(self.root[example])
 
     def extract_text(self, example):
         nodes = self.find_tags(self.root[example], "ul")
@@ -77,18 +78,6 @@ class Lxml(Base):
     def links_css(self, example):
         return self.root[example].cssselect("a[href]")
 
-    def count_elements(self, example):
-        elements = []
-
-        def count(element):
-            if isinstance(element, lxml.html.HtmlElement):
-                elements.append(element.tag)
-                for child in element.getchildren():
-                    count(child)
-
-        count(self.root[example])
-        return elements
-
     def __repr__(self):
         return "lxml.html"
 
@@ -116,18 +105,6 @@ class BSoup(Base):
     def links_css(self, example):
         return self.root[example].select("a[href]")
 
-    def count_elements(self, example):
-        elements = []
-
-        def count(element):
-            if isinstance(element, Tag):
-                elements.append(element.name)
-                for child in getattr(element, "children", []):
-                    count(child)
-
-        count(self.root[example])
-        return elements
-
     def __repr__(self):
         return f"BeautifulSoup[{self.parser}]"
 
@@ -140,7 +117,15 @@ class Selectolax(Base):
         return tree.css(f"{tag}")
 
     def all_nodes(self, tree):
-        return [e for e in tree.iter()]
+        nodes = []
+
+        def count(node):
+            nodes.append(node.tag)
+            for child in node.iter():
+                count(child)
+
+        count(tree.root)
+        return nodes
 
     def all_text(self, tree):
         return tree.text()
@@ -150,17 +135,6 @@ class Selectolax(Base):
 
     def links_css(self, example):
         return self.root[example].css("a[href]")
-
-    def count_elements(self, example):
-        elements = []
-
-        def count(element):
-            elements.append(element.tag)
-            for child in element.iter():
-                count(child)
-
-        count(self.root[example].root)
-        return elements
 
     def __repr__(self):
         return "Selectolax[modest]"
@@ -172,3 +146,32 @@ class SelectoLexbor(Selectolax):
 
     def __repr__(self):
         return "Selectolax[lexbor]"
+
+
+class Parsel(Base):
+    skip = ["extract_text", "count_elements"]
+
+    def parse_dom(self, html):
+        return Selector(html)
+
+    def find_tags(self, tree, tag):
+        return tree.css(f"{tag}")
+
+    def all_nodes(self, tree):
+        return []
+        # return [e for e in tree.xpath("./*")]
+
+    def all_text(self, tree):
+        # parsel's documentation shows a .text property but it didn't seem to work
+        # and documentation is sparse. it seems the preferred method is to use
+        # xpath or css for everything
+        raise NotImplementedError()
+
+    def links_natural(self, example):
+        return self.root[example].xpath("//a[@href]")
+
+    def links_css(self, example):
+        return self.root[example].css("a[href]")
+
+    def __repr__(self):
+        return "Parsel"
