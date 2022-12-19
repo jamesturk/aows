@@ -1,7 +1,5 @@
 # Parsing: Performance
 
-
-
 ## Speed Comparison
 
 It makes sense to acknowledge that speed is rarely the most important part of choosing a scraping library. While it is generally true that scrapers are limited by the speed of the connection to the target website, the speed of different parsers can have a significant impact on the performance of your scraper.
@@ -28,6 +26,11 @@ The initial parse of the HTML is likely the most expensive part of the scraping 
     ```python
     root = selectolax.parser.HTMLParser(html)
     # or selectolax.lexbor.LexborParser(html)
+    ```
+=== "Parsel"
+
+    ```python
+    root = parsel.Selector(html)
     ```
 
 #### Results
@@ -82,6 +85,12 @@ This benchmark uses each library to find all `<a>` tags with an `href` attribute
     # Selectolax is essentially a CSS Selector implementation
     links = root.css('a[href]')
     ```
+=== "Parsel"
+
+    ```python
+    # Parsel is a wrapper around lxml, so we'll use xpath
+    links = root.xpath('//a[@href]')
+    ```
 
 #### Results
 
@@ -107,7 +116,7 @@ Furthermore, the three BeautifulSoup implementations are virtually identical in 
 
 I wanted to take a look at another way of getting the same data, in part to see if it'd level the playing field at all. Not all of the libraries support the same features, but all do support CSS selectors. We'll be querying for the same data as before, but this time with CSS selectors.
 
-!!! note
+!!! tip
     For lxml to support this feature, it needs the [cssselect](https://pypi.org/project/cssselect/) library installed.
 
 #### Code
@@ -123,6 +132,11 @@ I wanted to take a look at another way of getting the same data, in part to see 
     links = root.select('a[href]')
     ```
 === "Selectolax" 
+
+    ```python
+    links = root.css('a[href]')
+    ```
+=== "Parsel"
 
     ```python
     links = root.css('a[href]')
@@ -152,7 +166,7 @@ This did show that CSS Selectors are just as fast in lxml as XPath which is good
 
 For this benchmark we'll walk the DOM tree and count the number of elements.  DOM Traversal is just about the worst way to get data out of HTML, but sometimes it is necessary.
 
-!!! warning
+!!! tip
     `parsel` doesn't support direct DOM traversal.  It is possible to get child elements using XPath or CSS selectors, but it is drastically slower
     and didn't feel like a fair comparison since it isn't an intended use case.
 
@@ -160,8 +174,6 @@ For this benchmark we'll walk the DOM tree and count the number of elements.  DO
     and need to do DOM traversal, this is the recommended approach.
 
 #### Code 
-
-My first attempt looked like this:
 
 === "lxml.html"
 
@@ -188,33 +200,28 @@ My first attempt looked like this:
     all_elements = [e for e in root.root.iter()]
     ```
 
-With this, the counts lined up much better:
-
-| example     |   BeautifulSoup[html.parser] |   BeautifulSoup[html5lib] |   BeautifulSoup[lxml] |   lxml.html |
-|:------------|-----------------------------:|--------------------------:|----------------------:|------------:|
-| asha_bhosle |                       38,454 |                    38,454 |                38,454 |      38,453 |
-| pyindex     |                       34,945 |                    34,973 |                34,945 |      34,944 |
-
-There are still small differences, especially with html5lib.  We'll explore what kinds of differences exist when we look at the flexibility of the parsers.
-
 #### Results
 
 ![](/img/count_elements.png)
 
 | implementation             |   average_time |   normalized |
 |:---------------------------|---------------:|-------------:|
-| lxml.html                  |      0.0281    |      1.33x   |
-| BeautifulSoup[html.parser] |      0.0229    |      1.08x   |
-| BeautifulSoup[html5lib]    |      0.0248    |      1.17x   |
-| BeautifulSoup[lxml]        |      0.0221    |      1.04x   |
-| Selectolax[modest]         |      0.0212    |      1.00x   |
-| Selectolax[lexbor]         |      0.0239    |      1.13x   |
+| lxml.html                  |      0.0281    |      1.3x   |
+| BeautifulSoup[html.parser] |      0.0229    |      1.1x   |
+| BeautifulSoup[html5lib]    |      0.0248    |      1.2x   |
+| BeautifulSoup[lxml]        |      0.0221    |      1.04x  |
+| Selectolax[modest]         |      0.0212    |      1.0x   |
+| Selectolax[lexbor]         |      0.0239    |      1.1x   |
 
-The variance here is quite low.  All need to do roughly the same work, traversing an already-built tree of HTML nodes. `lxml.html` is actually the slowest here, but it seems unlikely node-traversal will be a bottleneck in any case.
+The variance here is the lowest of any of the benchmarks.  All implementations need to do roughly the same work, traversing an already-built tree of HTML nodes in Python. `lxml.html` is actually the slowest here, but it seems unlikely node-traversal will be a bottleneck in any case.
 
 ### #5 - Extracting Text
 
 For this benchmark, we'll use each parser's built in text extraction function to extract the text from the pages.
+These functions extract all of the text from a node and it's descendants and are useful for things like extracting large blocks of plain text with some markup.
+
+!!! tip
+    `parsel` does not have an equivalent function, favoring a different approach to text extraction.
 
 These methods are used to extract all of the text from a block of HTML. This is useful for things like extracting large blocks of plain text with some markup.
 

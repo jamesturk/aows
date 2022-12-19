@@ -1,6 +1,9 @@
 parsing-speed:
     poetry run python -m aows.parsing.speed
 
+parsing-speed6:
+    poetry run python -m aows.parsing.benchmark6
+
 parsing-memory:
     poetry run python -m aows.parsing.memory
 
