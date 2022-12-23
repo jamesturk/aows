@@ -1,5 +1,5 @@
 import requests
-from .implementations import Lxml, BSoup
+from .implementations import Lxml, BSoup, Parsel, Selectolax, SelectoLexbor
 
 _cache = {}
 
@@ -56,10 +56,13 @@ def scrape(impl):
     html = cached_get(start_url)
     tree = impl.parse_dom(html)
     for link in impl.find_tags(tree, "a"):
-        href = link.get("href").split("#")[0]
+        href = impl.get_href(link)
+        if href is None:
+            href = ""
+        href = href.split("#")[0]
         # if href in seen:
         #     continue
-        # seen.add(href)
+        seen.add(href)
         if href.startswith("library/"):
             subpage = impl.parse_dom(cached_get(href))
             subpages += 1
@@ -73,8 +76,11 @@ def scrape(impl):
 
 
 # prime cache
-scrape(Lxml())
+scrape(Selectolax())
 
+# scrape(Parsel())
+scrape(Selectolax())
+scrape(SelectoLexbor())
 scrape(Lxml())
 scrape(BSoup("html.parser"))
 scrape(BSoup("lxml"))

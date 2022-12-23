@@ -296,20 +296,24 @@ This is a fair simulacrum of the work that a real scrape would do. All in all ou
 
 And of course, as before, all of this will be done using local files so no actual network requests will be made. An initial run will warm an in-memory cache, so disk I/O will not be a factor either.
 
-The results were interesting, after a sample run to warm the cache, the results looked like:
+#### Results
 
 | Parser                      | Time (s) | Pages/s |
 | --------------------------- | -------- | --------|
-| lxml                        | 114  | 104 |
-| BeautifulSoup\[html.parser] | 824  | 14 |
-| BeautifulSoup\[html5lib]    | 1,728 | 7 |
-| BeautifulSoup\[lxml]        | 623  | 19 |
+| lxml                        | 266      | 44      |
+| BeautifulSoup\[html.parser] | 2,292
+| BeautifulSoup\[html5lib]    | 1,627
+| BeautifulSoup\[lxml]        | 4,192
+| Selectolax\[modest]         | 211      | 56      |
+| Selectolax\[lexbor]         | 274      | 43      |
 
-For a moderate-sized scrape like this one, lxml.html is about 7x faster than BeautifulSoup's html.parser.
+!!! note
 
-That said, notice that in each case, the number of pages per second is higher than 1.  A common wait time between requests is 1 second. This means that in each case, we'd be spending more time waiting for requests than actually parsing pages.
+    Parsel is excluded here because it does not support all the methods used in the benchmark. Since it allows you to use `lxml` under the hood, and the speed was otherwise comparable to `lxml.html`, it is fair to assume it would be comparable to `lxml.html` in this benchmark as well.
 
-So does this mean the speed of a parser doesn't matter? Not at all.
+As is no surprise at this point, Selectolax and lxml.html are the clear winners here with no significant difference between them.
+
+Notably though, even the slowest TODO
 
 What if you were able to make 20 requests per second?  At that point, only lxml.html could keep up.
 

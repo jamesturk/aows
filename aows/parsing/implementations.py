@@ -42,6 +42,10 @@ class Base(ABC):
     def links_css(self, example):
         pass
 
+    @abstractmethod
+    def get_href(self, node):
+        pass
+
     def pre_parse(self):
         # Pre-parse the HTML to allow us to benchmark individual selections
         self.root = {}
@@ -78,6 +82,9 @@ class Lxml(Base):
     def links_css(self, example):
         return self.root[example].cssselect("a[href]")
 
+    def get_href(self, node):
+        return node.attrib["href"]
+
     def __repr__(self):
         return "lxml.html"
 
@@ -105,6 +112,9 @@ class BSoup(Base):
     def links_css(self, example):
         return self.root[example].select("a[href]")
 
+    def get_href(self, node):
+        return node.get("href")
+
     def __repr__(self):
         return f"BeautifulSoup[{self.parser}]"
 
@@ -117,15 +127,7 @@ class Selectolax(Base):
         return tree.css(f"{tag}")
 
     def all_nodes(self, tree):
-        nodes = []
-
-        def count(node):
-            nodes.append(node.tag)
-            for child in node.iter():
-                count(child)
-
-        count(tree.root)
-        return nodes
+        return [e for e in tree.root.traverse()]
 
     def all_text(self, tree):
         return tree.text()
@@ -135,6 +137,9 @@ class Selectolax(Base):
 
     def links_css(self, example):
         return self.root[example].css("a[href]")
+
+    def get_href(self, node):
+        return node.attributes["href"]
 
     def __repr__(self):
         return "Selectolax[modest]"
@@ -152,7 +157,7 @@ class Parsel(Base):
     skip = ["extract_text", "count_elements"]
 
     def parse_dom(self, html):
-        return Selector(html)
+        return Selector(html.decode())
 
     def find_tags(self, tree, tag):
         return tree.css(f"{tag}")
@@ -172,6 +177,9 @@ class Parsel(Base):
 
     def links_css(self, example):
         return self.root[example].css("a[href]")
+
+    def get_href(self, node):
+        return node.attrib["href"]
 
     def __repr__(self):
         return "Parsel"
