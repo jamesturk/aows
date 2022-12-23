@@ -3,7 +3,7 @@
 When people talk about Python libraries for writing
 web scrapers, they immediately think of [Beautiful Soup](https://www.crummy.com/software/BeautifulSoup/).
 
-It's popular enough people were often surprised to find out that Open States didn't use it. We used [lxml](http://lxml.de/) instead, switching around the time of the somewhat fraught BeautifulSoup 4 transition. Over the years I developed my own opinions about the libraries, but for the purposes of this book wanted to check my own assumptions as well as the conventional wisdom about these libraries.
+Nearly 20 years old, Beautiful Soup is one of the most well-established Python libraries out there. It's popular enough people were often surprised to find out that Open States didn't use it. We used [lxml](http://lxml.de/) instead, switching around the time of the somewhat fraught BeautifulSoup 4 transition. Over the years I developed my own opinions about the libraries, but for the purposes of this book wanted to check my own assumptions as well as the conventional wisdom about these libraries.
 
 If you look on sites like Stack Overflow, the conventional wisdom is that Beautiful Soup is the most flexible, while lxml is much faster. Many of these answers are from about a decade ago though.
 
