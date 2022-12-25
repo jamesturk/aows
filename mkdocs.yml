@@ -38,7 +38,7 @@ nav:
   #   - requests/libraries.md
   #   - requests/caching.md
   - Parsing Libraries:
-    - parsing/intro.md
+    - parsing/index.md
     - parsing/features.md
     - parsing/performance.md
     - parsing/bad_html.md

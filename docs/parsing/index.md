@@ -1,17 +1,17 @@
 # Comparing Parsing Libraries
 
-When people talk about Python libraries for writing
-web scrapers, they immediately think of [Beautiful Soup](https://www.crummy.com/software/BeautifulSoup/).
+When people talk about Python libraries for writing web scrapers, they immediately think of [Beautiful Soup](https://www.crummy.com/software/BeautifulSoup/).  Nearly 20 years old, it is one of the most well-established Python libraries out there. 
 
-Nearly 20 years old, Beautiful Soup is one of the most well-established Python libraries out there. It's popular enough people were often surprised to find out that Open States didn't use it. We used [lxml](http://lxml.de/) instead, switching around the time of the somewhat fraught BeautifulSoup 4 transition. Over the years I developed my own opinions about the libraries, but for the purposes of this book wanted to check my own assumptions as well as the conventional wisdom about these libraries.
+It's popular enough that I find that people are often surprised to learn there are alternatives.  Personally, I switched to [lxml](http://lxml.de/) around the time of the somewhat fraught BeautifulSoup 4 transition and never really looked back. Part of my motivation for looking at these libraries is to see where they stack up in 2023.
 
-If you look on sites like Stack Overflow, the conventional wisdom is that Beautiful Soup is the most flexible, while lxml is much faster. Many of these answers are from about a decade ago though.
+If you look on sites like Stack Overflow, the conventional wisdom is that Beautiful Soup is the most flexible, while lxml is much faster. 
+While I expect this is still true, I'm curious to see how much has changed in the last decade.
 
 Furthermore, as of BS4, Beautiful Soup works as a wrapper around a number of different parsers. It's [documentation](https://www.crummy.com/software/BeautifulSoup/bs4/doc/#installing-a-parser) explains how to pick a parser and offers some conventional wisdom about which you should pick. The default parser is [html.parser](https://docs.python.org/3/library/html.parser.html), which is part of the Python standard library. You can also use [lxml](http://lxml.de/) or html5lib.
 
-There's also a much newer kid in town, [Selectolax](https://github.com/rushter/selectolax).
+There's also a much newer kid in town, [Selectolax](https://github.com/rushter/selectolax). It's a wrapper around a new open source HTML parsing library and claims to be faster than lxml.
 
-I wanted to take a look at these three libraries and their various parsing engines to see how they stack up against one another.
+In this section, we'll be taking a look at how these libraries stack up against one another.
 
 We'll try to answer questions like:
 

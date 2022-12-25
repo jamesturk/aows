@@ -2,7 +2,11 @@
 
 ## Speed Comparison
 
-It makes sense to acknowledge that speed is rarely the most important part of choosing a scraping library. While it is generally true that scrapers are limited by the speed of the connection to the target website, the speed of different parsers can have a significant impact on the performance of your scraper.
+When talking about performance it makes sense to be realistic about the fact that speed is rarely the most important part of choosing a library for HTML parsing.
+
+As we'll see, most scrapers will be limited by the time spent making network requests, not the actual parsing of the HTML. While this is generally true, it is still good to understand the relative performance of these libraries.  We'll also take a look at when the performance of the parsers can have a significant impact on the performance of your scraper.
+
+To compare these libraries, I wrote a series of benchmarks to evaluate the performance of the libraries.
 
 ### #1 - Parsing HTML
 
@@ -35,7 +39,7 @@ The initial parse of the HTML is likely the most expensive part of the scraping 
 
 #### Results
 
-![load_dom](/img/load_dom.png)
+![load_dom](/aows/img/load_dom.png)
 
 | implementation             |   average_time |   normalized |
 |:---------------------------|---------------:|-------------:|
@@ -55,7 +59,7 @@ BeautifulSoup was much slower, even when using lxml as the parser, it was about 
 
 In an earlier draft of the benchmarks, I used a smaller page to test the parsers.  The results were similar, but not as dramatic:
 
-![](/img/graph2-load_dom-html5test.png)
+![](/aows/img/graph2-load_dom-html5test.png)
 
 Taking a look at a graph with just html5test, it is clear the relative speeds are about the same between the different test pages.
 
@@ -94,7 +98,7 @@ This benchmark uses each library to find all `<a>` tags with an `href` attribute
 
 #### Results
 
-![links_natural](/img/links_natural.png)
+![links_natural](/aows/img/links_natural.png)
 
 | implementation             |   average_time |   normalized |
 |:---------------------------|---------------:|-------------:|
@@ -144,7 +148,7 @@ I wanted to take a look at another way of getting the same data, in part to see 
 
 #### Results
 
-![links_css](/img/links_css.png)
+![links_css](/aows/img/links_css.png)
 
 | implementation             |   average_time |   normalized |
 |:---------------------------|---------------:|-------------:|
@@ -202,7 +206,7 @@ For this benchmark we'll walk the DOM tree and count the number of elements.  DO
 
 #### Results
 
-![](/img/count_elements.png)
+![](/aows/img/count_elements.png)
 
 | implementation             |   average_time |   normalized |
 |:---------------------------|---------------:|-------------:|
@@ -251,7 +255,7 @@ For this benchmark in particular, we'll extract text from each of the `<ul>` tag
 
 #### Results
 
-![](/img/extract_text.png)
+![](/aows/img/extract_text.png)
 
 | implementation             |   average_time |   normalized |
 |:---------------------------|---------------:|-------------:|
@@ -301,9 +305,9 @@ And of course, as before, all of this will be done using local files so no actua
 | Parser                      | Time (s) | Pages/s |
 | --------------------------- | -------- | --------|
 | lxml                        | 266      | 44      |
-| BeautifulSoup\[html.parser] | 2,292
-| BeautifulSoup\[html5lib]    | 1,627
-| BeautifulSoup\[lxml]        | 4,192
+| BeautifulSoup\[html.parser] | 2,292    | 5       |
+| BeautifulSoup\[html5lib]    | 4,575    | 3       |
+| BeautifulSoup\[lxml]        | 1,694    | 7       |
 | Selectolax\[modest]         | 211      | 56      |
 | Selectolax\[lexbor]         | 274      | 43      |
 
@@ -313,15 +317,17 @@ And of course, as before, all of this will be done using local files so no actua
 
 As is no surprise at this point, Selectolax and lxml.html are the clear winners here with no significant difference between them.
 
-Notably though, even the slowest TODO
+While the exact amount will vary depending on the specific parsers compared, it is fair to say the C-based libraries are about an order of magnitude faster.
 
-What if you were able to make 20 requests per second?  At that point, only lxml.html could keep up.
+If you are able to make more than ~10 requests/second, you might find that BeautifulSoup becomes a bottleneck.
 
 Let's take a look at how this plays out as we increase the number of requests per second:
 
-![](/img/rps_vs_time.png)
+![](/aows/img/rps_vs_time.png)
 
-So, as we increase the number of requests per second, lxml.html is the only parser that can keep up with our hypothetical scrape.
+As you increase the number of requests per second that you're able to obtain, the amount of the time spent in the parser increases. As you can see, by 10 requests per second, BeautifulSoup is taking more than half the time, and by 20 requests, it is taking ~80%.
+
+To contrast, `lxml.html` and `selectolax` are able to keep up with the increase in requests per second, unlikely to be the bottleneck until you are making 50+ requests per second.
 
 ## Memory Comparison
 
@@ -335,7 +341,7 @@ Finally, let's take a look at how much memory each parser uses while handling th
 
 This is somewhat difficult to measure, as the memory usage of an object is not easily accessible from Python.  I used [memray](https://github.com/bloomberg/memray) to measure a sample piece of code that loaded each parser and parsed the sample pages.  To compare the memory usage between complex pages and simple pages, the sample code also loaded the html5test page 100 times.
 
-![](/img/memory_usage.png)
+![](/aows/img/memory_usage.png)
 
 One thing to note is that the memory usage seems to be correlated to complexity (i.e. number of tags), which makes sense.
 

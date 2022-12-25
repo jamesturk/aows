@@ -38,7 +38,7 @@ This section aims to cover broad topics in web scraping. This isn't particularly
 These chapters are focused on the Python scraping ecosystem.  Each chapter will compare a few libraries, and discuss the pros & cons of each.
 
 * **Chapter 5: Making Requests** - Various libraries for making HTTP requests.
-* **Chapter 6: [Parsing HTML](parsing/intro.md) ** - Comparing various libraries for parsing HTML.
+* **Chapter 6: [Parsing HTML](parsing/index.md) ** - Comparing various libraries for parsing HTML.
 * **Chapter 7: Other Libraries** - Other libraries that are useful for scraping.
 * **Chapter 8: Scrapy** - A discussion of Scrapy.
 
