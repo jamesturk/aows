@@ -7,23 +7,23 @@ from .implementations import BSoup, Lxml, Selectolax, SelectoLexbor, Parsel
 
 # TODO: regen graphs w/ count = 100, and normalize colors between runs (reordering parsel to last might do the trick)
 methods = [
-    # ("load_dom", 5),
-    # ("links_natural", 10),
-    # ("links_css", 10),
-    ("count_nodes", 10),
-    ("extract_text", 10),
+    ("load_dom", 5),
+    ("links_natural", 100),
+    ("links_css", 100),
+    ("count_nodes", 100),
+    ("extract_text", 100),
 ]
 
 
 def run_all_benchmarks():
     implementations = [
         Lxml(),
-        Parsel(),
         BSoup("html.parser"),
         BSoup("html5lib"),
         BSoup("lxml"),
         Selectolax(),
         SelectoLexbor(),
+        Parsel(),
     ]
     runs = []
     for impl in implementations:

@@ -9,14 +9,14 @@ We'll compare the experience by looking at a few aspects of the developer experi
 * Documentation
 * Common Tasks Compared
 
-| Library | License | Stars (Dec 2022) | 
-| --- | --- | --- |
-](https://github.com/lxml/lxml)| [lxml](https://lxml.de/) | [2.2k](https://github.com/lxml/lxml) |
-| [BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/) | * |
+| Library | Stars (Dec 2022) | 
+| --- | --- |
+| [lxml](https://lxml.de/) | [2.2k](https://github.com/lxml/lxml) |
+| [BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/) | ✳ |
 | [selectolax](https://github.com/rushter/selectolax) | ~850 |
-| [parsel](https://github.com/scrapy/parsel) | MIT | ~700 |
+| [parsel](https://github.com/scrapy/parsel) | ~700 |
 
-* BeautifulSoup is developed on https://code.launchpad.net/beautifulsoup not GitHub.
+✳ BeautifulSoup is developed [on Launchpad](https://code.launchpad.net/beautifulsoup) not GitHub.
 
 All of the libraries are permissively licensed (either MIT or BSD).
 
