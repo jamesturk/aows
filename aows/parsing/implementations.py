@@ -157,7 +157,9 @@ class Parsel(Base):
     skip = ["extract_text", "count_elements"]
 
     def parse_dom(self, html):
-        return Selector(html.decode())
+        if isinstance(html, bytes):
+            html = html.decode()
+        return Selector(html)
 
     def find_tags(self, tree, tag):
         return tree.css(f"{tag}")

@@ -8,7 +8,7 @@ parsing-memory:
     poetry run python -m aows.parsing.memory
 
 memray:
-    rm output.bin memray-flamegraph-output.html
-    poetry run memray run -o output.bin -m scraping_experiments.parsing.memory_benchmark
+    rm output.bin memray-flamegraph-output.html || true
+    poetry run memray run -o output.bin -m aows.parsing.memory
     poetry run memray flamegraph output.bin
     open memray-flamegraph-output.html

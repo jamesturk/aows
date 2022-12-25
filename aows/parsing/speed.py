@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 import timeit
 from .implementations import BSoup, Lxml, Selectolax, SelectoLexbor, Parsel
 
-
+# TODO: regen graphs w/ count = 100, and normalize colors between runs (reordering parsel to last might do the trick)
 methods = [
     # ("load_dom", 5),
     # ("links_natural", 10),

@@ -1,1 +1,1 @@
-### TODO: Bad Ways to Do Rate Limiting
+### Bad Ways to Do Rate Limiting
