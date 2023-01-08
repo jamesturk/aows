@@ -1,4 +1,4 @@
-# Comparing Parsing Libraries
+# Parsing HTML
 
 When people talk about Python libraries for writing web scrapers, they immediately think of [Beautiful Soup](https://www.crummy.com/software/BeautifulSoup/).  Nearly 20 years old, it is one of the most well-established Python libraries out there. 
 

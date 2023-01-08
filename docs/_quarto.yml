@@ -6,14 +6,14 @@ book:
   author: "James Turk"
   # favicon: TODO.png
   sidebar: 
-    background: "#F5F5F5"
     #logo: TODO.png
+    style: docked
     search: true
   repo-url: https://github.com/jamesturk/aows/
   repo-subdir: docs
-  repo-branch: main
   repo-actions: [edit, issue, source]
-  # sharing: [twitter, facebook, linkedin]
+  sharing: [twitter, linkedin]
+  downloads: [pdf]
   #image: "TODO.png"
 
   chapters:
@@ -28,6 +28,7 @@ book:
       chapters:
         - requests/index.qmd
         - parsing/index.qmd
+        - other-libraries.qmd
   appendices: 
       - selectors.qmd
   
@@ -35,16 +36,12 @@ book:
 format:
   html:
     theme:
-      light: cosmo
+      light: flatly
+      dark: darkly
+      # pulse, sandstone, solar
     code-fold: false
-    css: custom.css
-    backgroundcolor: "#F5F5F5"
     number-depth: 3
 
   pdf:
     toc: true
     number-sections: true
-
-
-# good themes: default, cosmo, flatly, lumen, minty, pulse, sandstone, solar, united
-# favourites: minty, cosmo
