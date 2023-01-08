@@ -21,8 +21,8 @@ We'll try to answer questions like:
 * How does Selectolax stack up against the more established libraries?
 * How much does the flexibility of the parsers differ in 2023? Is it worth the performance hit to use html5lib?
 
-To explore these questions, we'll take a look at these libraries among a couple of dimensions:
+To explore these questions, we'll take a look at how these libraries compare.
 
-* [Performance](./performance.md)
-* [Parser Flexibility](./bad_html.md)
-* [Ease of Use & Features](./features.md)
+{{< include features.qmd >}}
+{{< include performance.qmd >}}
+{{< include bad_html.qmd >}}

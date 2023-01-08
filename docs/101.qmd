@@ -1,0 +1,13 @@
+# Web Scraping 101
+
+## What is Web Scraping?
+
+## Scraping vs. Crawling
+
+## Parse Tree
+
+## The Scraping "Algorithm"
+
+## The Browser's Role
+
+## Putting It All Together

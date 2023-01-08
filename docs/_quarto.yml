@@ -1,0 +1,50 @@
+project:
+  type: book
+
+book:
+  title: "Art of Web Scraping"
+  author: "James Turk"
+  # favicon: TODO.png
+  sidebar: 
+    background: "#F5F5F5"
+    #logo: TODO.png
+    search: true
+  repo-url: https://github.com/jamesturk/aows/
+  repo-subdir: docs
+  repo-branch: main
+  repo-actions: [edit, issue, source]
+  # sharing: [twitter, facebook, linkedin]
+  #image: "TODO.png"
+
+  chapters:
+    - index.qmd
+    - part: "Understanding Web Scraping"
+      chapters: 
+        - 101.qmd
+        - philosophy.md
+        - best-practices.qmd
+        - ethical-legal.qmd
+    - part: "Python Scraping Ecosystem"
+      chapters:
+        - requests/index.qmd
+        - parsing/index.qmd
+  appendices: 
+      - selectors.qmd
+  
+
+format:
+  html:
+    theme:
+      light: cosmo
+    code-fold: false
+    css: custom.css
+    backgroundcolor: "#F5F5F5"
+    number-depth: 3
+
+  pdf:
+    toc: true
+    number-sections: true
+
+
+# good themes: default, cosmo, flatly, lumen, minty, pulse, sandstone, solar, united
+# favourites: minty, cosmo

@@ -1,5 +1,3 @@
-# Parsing: Performance
-
 ## Speed Comparison
 
 When talking about performance it makes sense to be realistic about the fact that speed is rarely the most important part of choosing a library for HTML parsing.
@@ -8,38 +6,43 @@ As we'll see, most scrapers will be limited by the time spent making network req
 
 To compare these libraries, I wrote a series of benchmarks to evaluate the performance of the libraries.
 
-### #1 - Parsing HTML
+###  Parsing HTML
 
 The initial parse of the HTML is likely the most expensive part of the scraping process. This benchmark measures the time it takes to parse the HTML using each library.
 
-#### Code
+::: panel-tabset
 
-=== "lxml.html"
+##### "lxml.html"
 
-    ```python
-    root = lxml.html.fromstring(html)
-    ```
-=== "BeautifulSoup"
+```python
+root = lxml.html.fromstring(html)
+```
 
-    ```python
-    root = BeautifulSoup(html, 'lxml')
-      # or 'html.parser' or 'html5lib'
-    ```
-=== "Selectolax"
+##### "BeautifulSoup"
 
-    ```python
-    root = selectolax.parser.HTMLParser(html)
-    # or selectolax.lexbor.LexborParser(html)
-    ```
-=== "Parsel"
+```python
+root = BeautifulSoup(html, 'lxml')
+    # or 'html.parser' or 'html5lib'
+```
 
-    ```python
-    root = parsel.Selector(html)
-    ```
+##### "Selectolax"
 
-#### Results
+```python
+root = selectolax.parser.HTMLParser(html)
+# or selectolax.lexbor.LexborParser(html)
+```
 
-![load_dom](/aows/img/load_dom.png)
+##### "Parsel"
+
+```python
+root = parsel.Selector(html)
+```
+
+:::
+
+##### Results
+
+![load_dom](/img/load_dom.png)
 
 | implementation             |   average_time |   normalized |
 |:---------------------------|---------------:|-------------:|
@@ -55,21 +58,21 @@ Selectolax is the winner here, both engines performed about 4x faster than lxml.
 Parsel, as expected, was about the same speed as lxml.html since it is a thin wrapper around it.
 BeautifulSoup was much slower, even when using lxml as the parser, it was about 10x slower than lxml.html alone. `html5lib` was about 20x slower than lxml.html, and nearly 100x slower than Selectolax.
 
-#### Aside: Smaller Pages
+##### Aside: Smaller Pages
 
 In an earlier draft of the benchmarks, I used a smaller page to test the parsers.  The results were similar, but not as dramatic:
 
-![](/aows/img/graph2-load_dom-html5test.png)
+![](/img/graph2-load_dom-html5test.png)
 
 Taking a look at a graph with just html5test, it is clear the relative speeds are about the same between the different test pages.
 
 Parsing this page is so much faster than the larger more complex pages used for the rest of the tests that it basically disappeared on all graphs.
 
-### #2 - Extracting Links
+### Extracting Links
 
 This benchmark uses each library to find all `<a>` tags with an `href` attribute.  This is a common task for scrapers and given the number of links on the two test pages, should be a good test of the libraries capabilities. The libraries have different ways of doing this, so I used the most natural way for each library based on their documentation.
 
-#### Code
+##### Code
 
 === "lxml.html"
 
@@ -96,9 +99,9 @@ This benchmark uses each library to find all `<a>` tags with an `href` attribute
     links = root.xpath('//a[@href]')
     ```
 
-#### Results
+##### Results
 
-![links_natural](/aows/img/links_natural.png)
+![links_natural](/img/links_natural.png)
 
 | implementation             |   average_time |   normalized |
 |:---------------------------|---------------:|-------------:|
@@ -116,14 +119,14 @@ Furthermore, the three BeautifulSoup implementations are virtually identical in 
 
 (It was verified that all implementations gave the same count of links.)
 
-### #3 - Extracting Links (CSS)
+### Extracting Links (CSS)
 
 I wanted to take a look at another way of getting the same data, in part to see if it'd level the playing field at all. Not all of the libraries support the same features, but all do support CSS selectors. We'll be querying for the same data as before, but this time with CSS selectors.
 
 !!! tip
     For lxml to support this feature, it needs the [cssselect](https://pypi.org/project/cssselect/) library installed.
 
-#### Code
+##### Code
 
 === "lxml.html"
 
@@ -135,7 +138,7 @@ I wanted to take a look at another way of getting the same data, in part to see 
     ```python
     links = root.select('a[href]')
     ```
-=== "Selectolax" 
+=== "Selectolax"
 
     ```python
     links = root.css('a[href]')
@@ -146,9 +149,9 @@ I wanted to take a look at another way of getting the same data, in part to see 
     links = root.css('a[href]')
     ```
 
-#### Results
+##### Results
 
-![links_css](/aows/img/links_css.png)
+![links_css](/img/links_css.png)
 
 | implementation             |   average_time |   normalized |
 |:---------------------------|---------------:|-------------:|
@@ -166,7 +169,7 @@ This did show that CSS Selectors are just as fast in lxml as XPath which is good
 
 (It was verified that all implementations gave the same count of links.)
 
-### #4 - Counting Elements
+### Counting Elements
 
 For this benchmark we'll walk the DOM tree and count the number of elements.  DOM Traversal is just about the worst way to get data out of HTML, but sometimes it is necessary.
 
@@ -177,7 +180,7 @@ For this benchmark we'll walk the DOM tree and count the number of elements.  DO
     It is also possible to use `parsel` to get the underlying `lxml` object and use that to traverse the DOM. If you are using `parsel` 
     and need to do DOM traversal, this is the recommended approach.
 
-#### Code 
+##### Code
 
 === "lxml.html"
 
@@ -204,9 +207,9 @@ For this benchmark we'll walk the DOM tree and count the number of elements.  DO
     all_elements = [e for e in root.root.iter()]
     ```
 
-#### Results
+##### Results
 
-![](/aows/img/count_elements.png)
+![](/img/count_elements.png)
 
 | implementation             |   average_time |   normalized |
 |:---------------------------|---------------:|-------------:|
@@ -219,7 +222,7 @@ For this benchmark we'll walk the DOM tree and count the number of elements.  DO
 
 The variance here is the lowest of any of the benchmarks.  All implementations need to do roughly the same work, traversing an already-built tree of HTML nodes in Python. `lxml.html` is actually the slowest here, but it seems unlikely node-traversal will be a bottleneck in any case.
 
-### #5 - Extracting Text
+### Extracting Text
 
 For this benchmark, we'll use each parser's built in text extraction function to extract the text from the pages.
 These functions extract all of the text from a node and it's descendants and are useful for things like extracting large blocks of plain text with some markup.
@@ -231,7 +234,7 @@ These methods are used to extract all of the text from a block of HTML. This is 
 
 For this benchmark in particular, we'll extract text from each of the `<ul>` tags on the page.
 
-#### Code
+##### Code
 
 === "lxml.html"
 
@@ -253,9 +256,9 @@ For this benchmark in particular, we'll extract text from each of the `<ul>` tag
     text = "".join([ul.text() for ul in uls])
     ```
 
-#### Results
+##### Results
 
-![](/aows/img/extract_text.png)
+![](/img/extract_text.png)
 
 | implementation             |   average_time |   normalized |
 |:---------------------------|---------------:|-------------:|
@@ -283,7 +286,7 @@ It's also quite strange that BeautifulSoup's lxml parser is finding the same num
 
 I expect the next section where we look at flexibility will shed some light on this.
 
-### #6 - "Real World"
+### Real World Scrape
 
 So far we've been looking at very simple benchmarks of common methods. It seems clear that lxml.html is the fastest, but how much would that speed matter in a real world scenario?
 
@@ -300,7 +303,7 @@ This is a fair simulacrum of the work that a real scrape would do. All in all ou
 
 And of course, as before, all of this will be done using local files so no actual network requests will be made. An initial run will warm an in-memory cache, so disk I/O will not be a factor either.
 
-#### Results
+##### Results
 
 | Parser                      | Time (s) | Pages/s |
 | --------------------------- | -------- | --------|
@@ -323,7 +326,7 @@ If you are able to make more than ~10 requests/second, you might find that Beaut
 
 Let's take a look at how this plays out as we increase the number of requests per second:
 
-![](/aows/img/rps_vs_time.png)
+![](/img/rps_vs_time.png)
 
 As you increase the number of requests per second that you're able to obtain, the amount of the time spent in the parser increases. As you can see, by 10 requests per second, BeautifulSoup is taking more than half the time, and by 20 requests, it is taking ~80%.
 
@@ -333,7 +336,7 @@ To contrast, `lxml.html` and `selectolax` are able to keep up with the increase 
 
 Finally, let's take a look at how much memory each parser uses while handling the following files:
 
-| Example | Bytes | Tags | 
+| Example | Bytes | Tags |
 | ------- | ----- | ---- |
 | asha_bhosle | 1,132,673 | ~38,450 |
 | pyindex | 1,683,137 | ~34,950 |
@@ -341,7 +344,7 @@ Finally, let's take a look at how much memory each parser uses while handling th
 
 This is somewhat difficult to measure, as the memory usage of an object is not easily accessible from Python.  I used [memray](https://github.com/bloomberg/memray) to measure a sample piece of code that loaded each parser and parsed the sample pages.
 
-![](/aows/img/memory_usage.png)
+![](/img/memory_usage.png)
 
 These results have a lot of interesting things to say about the parsers.
 
@@ -367,7 +370,7 @@ TODO: check numbers for these paragraphs w/ final results
 
 Next time, we'll take a look at how flexible each parser is, and how that affects your scrape.
 
-## Notes
+### Notes
 
 All benchmarks were evaluated on a 2021 MacBook Pro with an Apple M1 Pro.
 
@@ -375,11 +378,11 @@ All benchmarks were evaluated on a 2021 MacBook Pro with an Apple M1 Pro.
 | --------- | ------- |
 | Python | 3.10.7 (installed via pyenv) |
 | BeautifulSoup | 4.11.1 |
-| cchardet  |  2.1.7 | 
+| cchardet  |  2.1.7 |
 | cssselect |  1.2.0 |
 | html5lib | 1.1 |
 | lxml | 4.9.1 |
-| selectolax | 0.3.11| 
+| selectolax | 0.3.11|
 
 According to the [Beautiful Soup docs](https://beautiful-soup-4.readthedocs.io/en/latest/#improving-performance) installing `cchardet` is recommended for performance. These tests were run with `cchardet` installed to ensure a fair comparison, though it did not make a noticable difference in performance.
 

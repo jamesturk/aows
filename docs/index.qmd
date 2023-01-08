@@ -1,10 +1,12 @@
-# Introduction
+# Introduction {.unnumbered}
 
-Web scraping can be somewhat polarizing among developers. A lot of people hate it, finding it frustrating and tedious. Many of us get a sense of satisfaction out of it, enjoying the challenges it presents and the end result of having machine-readable data where it didn't exist before.
+Web scraping can be quite polarizing. A lot of people hate it, finding it frustrating and tedious. Many of us get a sense of satisfaction out of it, enjoying the challenges it presents and the end result of having machine-readable data where it didn't exist before.
 
 For thirteen years (2009-2022), I led the [Open States project](https://openstates.org). Open States maintains a database of legislative data for all 50 states (and DC and PR) that updates regularly throughout the day. The project relies on around 200 custom scrapers, and then uses that data to power a variety of services including a public API and website. Millions of individuals have used Open States over the years to find their representatives & track legislation, and the data is widely used by researchers, journalists, and nonprofits.
 
-A lot of web scrapers are built as one-offs, and as a result not a lot of thought is put into the design of the scraper. This makes sense, but creates a sort of feedback loop where most scraper code is fragile and hard to maintain, so people looking to write more reliable scrapers wind up learning from code that is fragile and hard to maintain. Over the years I onboarded dozens of new contributors, and often wished for better resources on web scraping that reflected best practices. My hope is that I can help to fill that gap.
+So, I'm definitely in the latter camp. but I also believe that a lot of people that hate web scraping hate it for valid reasons. The commonly used libraries are not ergonomic, most scraper code is ugly and hard to maintain, and the write-run-wait-debug cycle is slow and painful.
+
+A big part of why this is the case is that a lot of web scrapers are built as one-offs, and as a result not a lot of thought is put into their design. This makes sense, but creates a sort of feedback loop where most scraper code is fragile and hard to maintain, so people looking to write more reliable scrapers wind up learning from code that is fragile and hard to maintain. Over the years I onboarded dozens of new contributors, and often wished for better resources on web scraping that reflected best practices. My hope is that I can help to fill that gap.
 
 Data Engineering has taken off as a field in recent years, and web scraping is a key part of many data engineering pipelines. Despite being absolutely essential, it'll typically be the most fragile, least maintainable part of the pipeline. We'll take a look at why that is, and how we can improve it.
 

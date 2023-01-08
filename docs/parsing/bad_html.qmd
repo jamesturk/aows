@@ -1,4 +1,4 @@
-# Parsing: Bad HTML
+## Bad HTML
 
 We saw in the performance comparison that the results of counting particular nodes differed somewhat between parsers.
 

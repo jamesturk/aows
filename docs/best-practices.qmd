@@ -1,0 +1,33 @@
+# Best Practices
+
+## Scraper Design
+
+
+## Developer Ergonomics
+
+## Being a Good Citizen
+
+### Scraping != Adversarial
+
+### Identifying Yourself
+
+### robots.txt
+
+### Rate Limiting
+
+#### What is Rate Limiting?
+
+#### Naive Rate Limiting
+
+#### Proper Rate Limiting
+
+#### Enhancements
+
+### Caching
+
+#### HTTP Caching
+
+#### Caching for Scrapers
+
+#### Caveats
+

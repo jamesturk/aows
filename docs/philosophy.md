@@ -1,6 +1,6 @@
 # Scraping Philosophy
 
-## Tenant #1: Scrapers Are Ugly
+## Scrapers Are Ugly
 
 A lot of the ugliest code you'll ever write is web scraping code.
 
@@ -21,19 +21,9 @@ Ultimately our core requirements shaped a lot of this philosophy:
 
 We built a lot of tools to help us with these goals, and over the years we built up a lot of knowledge about how to build reliable scrapers.
 
-## Tenant #2: 
+## Scrapers Are Fragile
 
-## Maintainable Code
-
-Selectors vs. Traversal
-
-## Separate Steps
-
-## Fail Fast
-
-## Store Sources
-
-## Code : Page Structure
+## Scrapers Are Tied to the Page Structure
 
 ## Scrapers Stick Around
 
