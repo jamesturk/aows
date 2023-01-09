@@ -1,0 +1,59 @@
+##### Example: Text Extraction
+
+```html
+<div class="content">
+    This is some content that contains <em>a little</em> bit of markup.
+    <br />
+    We'll see that these inner tags create some <em>problems</em>,
+     which some libraries handle better than others.
+</div>
+```
+
+```{python .hidden}
+#| include: false
+html = """
+<div class="content">
+    This is some content that contains <em>a little</em> bit of markup.
+    <br />
+    We'll see that these inner tags create some <b>problems</b>,
+    which some libraries handle better than others.
+</div>
+"""
+```
+
+::: {.panel-tabset}
+
+##### Beautiful Soup
+
+```{python}
+```{python}
+from bs4 import BeautifulSoup
+soup = BeautifulSoup(html, 'html.parser')
+soup.text
+```
+
+##### lxml 
+
+```{python}
+import lxml.html
+root = lxml.html.fromstring(html)
+root.text_content()
+```
+
+##### parsel
+
+```{python}
+import parsel
+sel = parsel.Selector(html)
+sel.xpath('string()').get()
+```
+
+##### Selectolax
+
+```{python}
+from selectolax.parser import HTMLParser
+tree = HTMLParser(html)
+tree.text()
+```
+
+:::

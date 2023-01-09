@@ -1,0 +1,45 @@
+##### Example: Extracting an attribute's value
+
+```{python}
+html = """<a data="foo">"""
+```
+
+::: {.panel-tabset}
+
+##### lxml
+
+```{python}
+import lxml.html
+root = lxml.html.fromstring(html)
+node = root.xpath('//a')[0]
+node.attrib['data']
+```
+
+##### BeautifulSoup
+
+```{python}
+import bs4
+root = bs4.BeautifulSoup(html, 'lxml')
+node = root.find('a')
+node['data']
+```
+
+##### Selectolax
+
+```{python}
+from selectolax.parser import HTMLParser
+root = HTMLParser(html)
+node = root.css_first('a')
+node.attributes['data']
+```
+
+##### parsel
+
+```{python}
+from parsel import Selector
+root = Selector(html)
+node = root.xpath('//a')[0]
+node.attrib['data']
+```
+
+:::

@@ -1,15 +1,48 @@
 # Parsing HTML
 
-When people talk about Python libraries for writing web scrapers, they immediately think of [Beautiful Soup](https://www.crummy.com/software/BeautifulSoup/).  Nearly 20 years old, it is one of the most well-established Python libraries out there. 
+## Introduction
 
-It's popular enough that I find that people are often surprised to learn there are alternatives.  Personally, I switched to [lxml](http://lxml.de/) around the time of the somewhat fraught BeautifulSoup 4 transition and never really looked back. Part of my motivation for looking at these libraries is to see where they stack up in 2023.
+In this section we'll be looking at four libraries for parsing HTML:
 
-If you look on sites like Stack Overflow, the conventional wisdom is that Beautiful Soup is the most flexible, while lxml is much faster. 
-While I expect this is still true, I'm curious to see how much has changed in the last decade.
+* [Beautiful Soup](https://www.crummy.com/software/Beautiful Soup/)
+* [lxml](https://lxml.de/), specifically [lxml.html](https://lxml.de/lxmlhtml.html)
+* [selectolax](https://github.com/rushter/selectolax)
+* and [parsel](https://parsel.readthedocs.io/en/latest/), which is part of the [Scrapy](https://scrapy.org/) framework.
 
-Furthermore, as of BS4, Beautiful Soup works as a wrapper around a number of different parsers. It's [documentation](https://www.crummy.com/software/BeautifulSoup/bs4/doc/#installing-a-parser) explains how to pick a parser and offers some conventional wisdom about which you should pick. The default parser is [html.parser](https://docs.python.org/3/library/html.parser.html), which is part of the Python standard library. You can also use [lxml](http://lxml.de/) or html5lib.
+**Beautiful Soup**
 
-There's also a much newer kid in town, [Selectolax](https://github.com/rushter/selectolax). It's a wrapper around a new open source HTML parsing library and claims to be faster than lxml.
+When people talk about Python libraries for writing web scrapers, they immediately go to [Beautiful Soup](https://www.crummy.com/software/Beautiful Soup/).  Nearly 20 years old, it is one of the most well-established Python libraries out there.  It is popular enough that I find that people are often surprised to learn there are viable alternatives. 
+
+If you look on sites like Stack Overflow, the conventional wisdom is that Beautiful Soup is the most flexible, while lxml is much faster. We'll be taking a look to see if that wisdom holds up.
+
+It is worth mentioning that Beautiful Soup 4 is a major departure from Beautiful Soup 3. So much so that when installing Beautiful Soup 4, you need to install the `beautifulsoup4` package from PyPI.
+
+Furthermore, as of version 4, Beautiful Soup works as a wrapper around a number of different parsers. Its [documentation](https://www.crummy.com/software/Beautiful Soup/bs4/doc/#installing-a-parser) explains how to pick a parser and offers some conventional wisdom about which you should pick. The default parser is [html.parser](https://docs.python.org/3/library/html.parser.html), which is part of the Python standard library. You can also use lxml.html or html5lib. When it comes to evaluating the performance of Beautiful Soup, we'll try all of these.
+
+**lxml.html**
+
+[lxml](https://lxml.de/) is a Python library for parsing XML, and comes with `lxml.html`, a submodule specifically designed for handling HTML.
+The library is a wrapper around the libxml2 and libxslt C libraries. This means that it is very fast, but also requires that you have the C libraries installed on your system.
+
+Until recently this was a bit of a challenge, but advances in Python packaging have made this process much easier in most environments.
+
+The conventional wisdom, as mentioned before, is that lxml is fast but perhaps not as flexible as other options. Anecdotally that has not been my experience, Open States switched to [lxml](http://lxml.de/) around the time of the somewhat fraught Beautiful Soup 4 transition and never really looked back.
+
+**Selectolax**
+
+There's also a much newer kid in town, [Selectolax](https://github.com/rushter/selectolax). It is a wrapper around a new open source HTML parsing library and claims to be even faster than lxml. It has a much smaller footprint than the other libraries, so it will be interesting to see how it stacks up against the more established libraries.
+
+**Parsel**
+
+Parsel is a library that is part of the popular [Scrapy](https://scrapy.org/) framework. It is a wrapper around lxml, but provides a very different interface for extracting data from HTML.
+
+::: {.callout-note}
+
+These libraries are not exact peers of one another. This is most notable with the way that Beautiful Soup and lxml allow you to use different parsers, and Parsel is itself a wrapper around lxml.
+
+While unusual combinations may exist, most projects will pick one of these and use it for all of their parsing needs, so we'll be looking at them through that lens.
+
+:::
 
 In this section, we'll be taking a look at how these libraries stack up against one another.
 
@@ -21,8 +54,200 @@ We'll try to answer questions like:
 * How does Selectolax stack up against the more established libraries?
 * How much does the flexibility of the parsers differ in 2023? Is it worth the performance hit to use html5lib?
 
-To explore these questions, we'll take a look at how these libraries compare.
+To start, we'll take a look at the features that each offers before evaluating how they perform against one another.
 
-{{< include features.qmd >}}
+## Developer Experience
+
+When it comes to writing resilient scrapers, the developer experience is perhaps the most important dimension.
+A nice, clean, and consistent API is an important factor in the cleanliness & readability of your scraper code.
+
+We'll compare the experience by looking at a few aspects of the developer experience:
+
+* Features
+* Complexity
+* Documentation
+* Common Tasks Compared
+
+It is also worth noting that all of the libraries are permissively licensed (either MIT or BSD) open source libraries.
+So on that front at least, the developer experience is the same.
+
+### Feature Comparison
+
+These libraries are all perfectly capable libraries, each provides HTML parsing as well as various selection mechanisms to extract content from the DOM.
+
+The main differences among them are which methods they provide for selecting nodes, and how they handle text extraction:
+
+| Library | XPath | CSS | DOM Traversal API | Text Extraction | 
+| --- | --- | --- | --- | --- |
+| lxml | ✅ |  ✳ | ✅ | ✅ |
+| Beautiful Soup | ❌ | ✅ | ✅ | ✅ |
+| selectolax | ❌ | ✅ | ✅ | ✅ |
+| parsel | ✅ | ✅ | ❌ | ❌ |
+
+: Feature Comparison {#tbl-features}
+
+✳ `cssselect` must be installed separately but augments lxml.html to provide CSS selector support.
+
+#### Attribute Access
+
+A common feature among all libraries is dictionary-like attribute access on nodes.
+
+{{< include _attribute_access.qmd >}}
+
+#### Pluggable Parsers
+
+lxml and Beautiful Soup both have parsers and node APIs that are separate from one another.  It is technically possible to use lxml.html's parser with Beautiful Soup's Node API, or vice versa.  Additionally, selectolax allows choosing between two different backend parsers.
+
+This isn't going to factor into feature comparisons, since each supported parser is equally capable and we'll be looking at speed & flexibility in other sections.
+
+Having pluggable parsers is a nice feature, but as we'll see in the rest of this comparison, it might not be as useful as it sounds.
+
+#### Selectors & DOM Traversal
+
+Once HTML is parsed, there are many ways to actually select the nodes that you want to extract data from.
+As mentioned in earlier sections, using a selector language like XPath or CSS selectors is preferable, but sometimes you will need to fall back to traversing the DOM.
+
+lxml is an XML-first library, and as such supports the powerful XPath selection language.
+It also supports the ElementTree API, which is a DOM traversal API. It also supports CSS selectors, but you must install cssselect separately.
+
+parsel, mostly a wrapper around lxml, also supports XPath and CSS selectors treating both as equal. It does not however expose a DOM traversal API of its own.
+
+Beautiful Soup has a custom selector API, and also supports CSS selectors since 4.0. It also has dozens of methods for traversing the DOM.
+
+Selectolax is CSS-first, with no XPath support. It does also provide methods for directly traversing the DOM.
+
+#### Text Extraction
+
+All of these libraries provide a way to extract text from a node, but the methods differ.
+
+* lxml provides a `text_content()` method that will return the text content of a node, including text from child nodes.
+* BeautifulSoup similarly provides a `.text` property that will return the text content of a node, including text from child nodes.
+* Parsel does not actually provide a dedicated way to do this, you can use the `.xpath('string()')` method to get the text content of a node, including text from child nodes.
+* selectolax provides a `.text()` method that will return the text content of a node, including text from child nodes.
+
+{{< include _text_extraction.qmd >}}
+
+[Selectolax's text extraction](https://selectolax.readthedocs.io/en/latest/parser.html#selectolax.parser.HTMLParser.merge_text_nodes) seems the most sophisticated. Its [`text`](https://selectolax.readthedocs.io/en/latest/parser.html#selectolax.parser.HTMLParser.text) method has convinient parameters to strip text and opt between including text from child nodes or not.
+
+#### parsel & lxml
+
+`parsel` at this point may seem to be lacking in features.
+We've seen that it does not support DOM traversal, or have a native method for extracting text from a node.
+It seems fair to note that you can access the underlying `lxml` object and use its methods, which provides one workaround.
+
+Of course, this is not a very clean solution requiring mixing of two APIs and would break if `parsel` ever switched to a different underlying library.
+(This has at least been proposed, but it is not clear it is likely.)
+
+### Complexity
+
+At their core, all of these APIs provide a method to parse a string of HTML, and then a node API where most of the work is done.
+One measure of complexity is taking a look at what methods and properties are available on each library's node type.
+
+| Library | Class Name | Methods | Public Properties |
+| --- | --- | --- | --- |
+| Beautiful Soup | `bs4.element.Tag` | 69 | 39 | 
+| lxml | `lxml.html.HtmlElement` | 43 | 15 |
+| parsel | `parsel.selector.Selector` | 11 | 6 |
+| selectolax | `selectolax.parser.Node` | 11 | 21 |
+
+This is a somewhat arbitrary measure, but illustrates that parsel and selectolax are concise APIs, perhaps at the cost of some functionality.
+
+Most of the methods and properties that Beautiful Soup provides are for navigating the DOM, and it has a lot of them.
+When Beautiful Soup came onto the scene, most scrapers did a lot more DOM traversal as XPath and CSS selector implementations were not as mature as they are today.
+
+### Documentation
+
+[Beautiful Soup](https://www.crummy.com/software/Beautiful Soup/bs4/doc/) has very comprehensive documentation. It has a nice [quick start guide](https://www.crummy.com/software/Beautiful Soup/bs4/doc/#quick-start) and then detailed examples of its numerous features. One thing that becomes obvious when comparing it to the others is that it has a lot of features, it has a large API for modifying the tree, and dozens of methods for various types of navigation (e.g. `next_sibling`, `next_siblings`, `next_element`, `next_elements` all exist, with the same for `previous` and each being slightly different from its peers).
+
+As the most widely-used there's also the advantage of a large community of users and a lot of examples online, but I'd temper that by noting that a large number of examples are old and use outdated APIs.
+
+::: {.callout-note}
+
+#### The pitfalls of popularity
+
+In some ways, Beautiful Soup is a victim of its own success here. Popular libraries tend to accumulate features over time, and it would break backwards compatibility to remove them. With a library as widely used as Beautiful Soup, that can be a significant barrier to change.
+
+Perhaps there will someday be a Beautiful Soup 5 that offers a simplified API.
+
+:::
+
+[lxml](https://lxml.de/) also has incredibly detailed documentation. The documentation site covers all of the features of lxml, which is a large library that contains many features unrelated to HTML parsing.
+It is a bit better if you limit your search to the [lxml.html](https://lxml.de/lxmlhtml.html) module, which is the module that contains the HTML parsing features.
+Though you may need to look at other parts of the documentation to understand some of the concepts, the documentation for `lxml.html` is fairly concise and covers most of what you'd need to know.
+
+[parsel](https://parsel.readthedocs.io/en/latest/) has a very concise API, and the documentation reflects that. Consisting primarily of a [Usage page](https://parsel.readthedocs.io/en/latest/usage.html) and an [API reference](https://parsel.readthedocs.io/en/latest/parsel.html).
+
+The documentation would probably benefit from more examples, especially since parsel's small API might leave some users wondering where features they've come to rely upon in other libraries are. A few more examples of how to replicate common tasks in other libraries would be helpful.
+
+[selectolax](https://selectolax.readthedocs.io/en/latest/) is another very small API. Like `parsel` it mainly concerns itself with a small set of methods and properties available on a node type. The documentation is purely-module based and does not include any kind of tutorial or usage guide.
+
+One would hope as the library matures that it will add more documentation, but for now it is a bit bare.
+
 {{< include performance.qmd >}}
-{{< include bad_html.qmd >}}
+
+## Bad HTML
+
+We saw in the performance comparison that the results of counting particular nodes differed somewhat between parsers.
+
+This mostly happens because there are differences in how they handle malformed HTML.
+
+In a strict language like XML, forgetting to close a tag or containing some unescaped characters is treated as a syntax error.
+The parser is expected to stop parsing and report the error.
+
+Browsers are much more forgiving, and will often attempt to "fix" the HTML before rendering it.
+That means according to certain heuristics, tags can be omitted, unescaped characters can be treated as text, and so on.
+If you've written more than a few scrapers you've likely encountered some, "creative" HTML, and this is core to why that is.
+
+Our parsers attempt to do the same thing, but do not always agree in their assumptions.
+
+A missing closing tag, or in some cases a single character typo, can cause a parser to fail to correctly parse the rest of the document.
+When this happens the scraper author is left with the choice to either fall back to crude techniques to "fix" the HTML, or to use another parser.
+
+To evaluate the different parsers, we'll look at a few examples of bad HTML and see how they handle it.  This is far from comprehensive, but should give a sense of how the parsers handle common issues.
+
+TODO: write examples
+
+## Conclusions
+
+There's no clear winner among these. Much of it will come down to developer preference, and the needs of the project.
+
+### `Beautiful Soup`
+
+As the most widely used library, it is easy to find examples and documentation online.
+It is very feature-rich, including features like DOM modification outside the scope of this comparison.
+
+The API is large and can be confusing to new users, with the often favored node-search based approach being very specific to Beautiful Soup as opposed to things like XPath & CSS selectors that are more broadly used in scrapers.
+
+In many ways `Beautiful Soup` feels like a victim of its own success.
+It has a lot of legacy code and features that are no longer as relevant, but I'd imagine the sheer number of users makes it difficult to make breaking changes even if the author's wanted to.
+
+For a new project, I'd probably look at the other libraries first, but if a team was already using Beautiful Soup it might not make sense to switch unless they were running into performance issues. As the benchmarks indicated, even if they were already using the lxml backend, there is a lot to be gained by switching to lxml or Selectolax.
+
+### `lxml`
+
+A powerful & underrated library, `lxml.html` wins major points for being the only one to support XPath and CSS selectors natively. It has a DOM traversal API that can be used similarly to `Beautiful Soup`'s node-search based approach if desired.
+
+Like `Beautiful Soup`, it has a somewhat sprawling API that contains dozens of methods most people will never need. Many of these are part of the `ElementTree` API, which is a DOM traversal API that is not specific to HTML parsing.
+
+The most commonly-cited downside is that it relies upon C libraries, which can make installation and deployment more difficult on some platforms. I find with modern package managers this is less of an issue than it used to be, but it is still a valid concern.
+
+As fast as it is, it is also exceedingly unlikely to become a performance bottleneck in most projects.
+
+It's a solid all-around choice.
+
+### `parsel`
+
+parsel is a nice idea, a thin wrapper around lxml that focuses on providing a simple API for XPath and CSS selectors. It is a good idea, but using it leaves something to be desired. Its API is very small, perhaps going too far in the other direction.
+
+It has an API that is quite different from the others, which some might find very pleasant and others might dislike.
+
+As a wrapper around `lxml` it has the same advantages and disadvantages, with minimal overhead. Of course, if installing C libraries is a concern, it will be an issue here too.
+
+### `selectolax`
+
+I was completely unfamiliar with Selectolax before starting this comparison and came away impressed. The API is small and easy to learn, but with a few convenience functions that I found nice to have compared to parsel's approach.
+
+The main downside I see is that it does not have native XPath support.
+While CSS selectors are more widely-used, XPath is very powerful and it is nice to have the option to use it when using `lxml.html` or `parsel`.
+
+`selectolax` of course also depends upon C libraries, and newer/unproven ones at that. That'd be a bit of a concern if I were evaluating it for a long-term project that would need to be maintained for years, but I'll probably be giving it a try on a personal project in the near future.
