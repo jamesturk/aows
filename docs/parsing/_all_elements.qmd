@@ -1,0 +1,29 @@
+::: {.panel-tabset}
+
+##### lxml.html
+
+```python
+all_elements = [e for e in root.iter()]
+```
+
+##### Beautiful Soup
+
+```python
+# BeautifulSoup includes text nodes, which need to be excluded
+all_elements = [e for e in root.recursiveChildGenerator() if isinstance(e, Tag)]
+```
+
+##### Selectolax
+
+```python
+all_elements = [e for e in root.iter()]
+```
+
+##### Parsel
+
+```python
+# Parsel doesn't support DOM traversal, but here's an 
+# example of how to get the underlying lxml object
+all_elements = [e for e in root.root.iter()]
+```
+:::

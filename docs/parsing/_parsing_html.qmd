@@ -1,0 +1,29 @@
+::: panel-tabset
+
+##### lxml.html
+
+```python
+root = lxml.html.fromstring(html)
+```
+
+##### Beautiful Soup
+
+```python
+root = BeautifulSoup(html, 'lxml')
+    # or 'html.parser' or 'html5lib'
+```
+
+##### Selectolax
+
+```python
+root = selectolax.parser.HTMLParser(html)
+# or selectolax.lexbor.LexborParser(html)
+```
+
+##### parsel
+
+```python
+root = parsel.Selector(html)
+```
+
+:::

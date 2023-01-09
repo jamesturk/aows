@@ -1,0 +1,23 @@
+::: {.panel-tabset}
+
+##### lxml.html
+
+    ```python
+    links = root.cssselect('a[href]')
+    ```
+##### BeautifulSoup
+
+    ```python
+    links = root.select('a[href]')
+    ```
+##### Selectolax
+
+    ```python
+    links = root.css('a[href]')
+    ```
+##### Parsel
+
+    ```python
+    links = root.css('a[href]')
+    ```
+:::

@@ -185,6 +185,43 @@ One would hope as the library matures that it will add more documentation, but f
 
 {{< include performance.qmd >}}
 
+## Memory Comparison
+
+Finally, let's take a look at how much memory each parser uses while handling the following files:
+
+| Example | Bytes | Tags |
+| ------- | ----- | ---- |
+| asha_bhosle | 1,132,673 | ~38,450 |
+| pyindex | 1,683,137 | ~34,950 |
+| html5test | 18,992 | 218 |
+
+This is somewhat difficult to measure, as the memory usage of an object is not easily accessible from Python.  I used [memray](https://github.com/bloomberg/memray) to measure a sample piece of code that loaded each parser and parsed the sample pages.
+
+![](/img/memory_usage.png)
+
+These results have a lot of interesting things to say about the parsers.
+
+First, BeautifulSoup is typically the least-memory efficient. This is probably not surprising, but it is surprising to see that there is a definite memory tax for using it with the `lxml.html` parser.  This is particularly interesting since `lxml.html` is the most-memory efficient parser in each test.
+
+`parsel` performs very well here, with seemingly minimal overhead on top of it's underlying `lxml.html` parser.
+
+`selectolax` looks good, sitting at the midway point between `lxml.html` and `BeautifulSoup`. It struggled however with the `html5test` page, included here with 10x and 100x repetitions to allow for comparison.
+
+It's interesting to see that `selectolax` does so poorly here. It's possible that there is a fixed minimum of memory that selectolax uses for each page, and that the `html5test` page is so small that it is not able to take advantage of that minimum. In practice this shouldn't be an issue, as typically only a single page would be loaded at a time, but it still seems worth noting as an unexpected result.
+
+## Does Performance Matter?
+
+One one hand, performance isn't going to make or break your scrape.  If you're scraping a small number of pages, or are dealing with a slow site or rate limit, the difference between the fastest and slowest parsers is going to be negligible.
+
+In practice, the real payoffs of using a faster parser are going to be felt the most during development of larger scrapers. If you're using a local cache while scraping (and I hope you are), your requests per second are nearly limitless.  This means that the speed of your parser is going to be the limiting factor in how fast you can iterate on your scrape.
+
+In a 1,000 page scrape from cache of pages similar to our final benchmark, a full trial run would take less than 15 seconds while a full trial run with `html5lib.parser` would take nearly 3 minutes.  At 10,000 pages the difference between the shortest and longest is almost half an hour.
+
+Memory usage might also matter to you, if you are running your scraper on a small VPS or have unusually complex pages, memory usage could be a factor and that's another place where `lxml.html` shines.
+
+TODO: check numbers for these paragraphs w/ final results
+
+
 ## Bad HTML
 
 We saw in the performance comparison that the results of counting particular nodes differed somewhat between parsers.
@@ -251,3 +288,28 @@ The main downside I see is that it does not have native XPath support.
 While CSS selectors are more widely-used, XPath is very powerful and it is nice to have the option to use it when using `lxml.html` or `parsel`.
 
 `selectolax` of course also depends upon C libraries, and newer/unproven ones at that. That'd be a bit of a concern if I were evaluating it for a long-term project that would need to be maintained for years, but I'll probably be giving it a try on a personal project in the near future.
+
+## Environment
+
+All benchmarks were evaluated on a 2021 MacBook Pro with an Apple M1 Pro.
+
+| Component | Version |
+| --------- | ------- |
+| Python | 3.10.7 (installed via pyenv) |
+| BeautifulSoup | 4.11.1 |
+| cchardet  |  2.1.7 |
+| cssselect |  1.2.0 |
+| html5lib | 1.1 |
+| lxml | 4.9.1 |
+| selectolax | 0.3.11|
+
+According to the [Beautiful Soup docs](https://beautiful-soup-4.readthedocs.io/en/latest/#improving-performance) installing `cchardet` is recommended for performance. These tests were run with `cchardet` installed to ensure a fair comparison, though it did not make a noticable difference in performance in these cases.
+
+The sample pages referenced in the benchmarks are:
+
+* [Python Documentation Full Index](https://docs.python.org/3/genindex-all.html) - A fairly large page with lots of links.
+* [List of 2021-22 NBA Transactions](https://en.wikipedia.org/wiki/List_of_2021%E2%80%9322_NBA_season_transactions) - A very large Wikipedia page with a huge table.
+* [List of Hindi songs recorded by Asha Bhosle](https://en.wikipedia.org/wiki/List_of_Hindi_songs_recorded_by_Asha_Bhosle) - At the time of writing, the largest Wikipedia page.
+* [HTML5 Test Page](https://html5test.com/index.html) - A moderately sized page with lots of HTML5 features.
+
+All source code for these experiments is in [scraping-experiments](https://github.com/jamesturk/scraping-experiments/).
