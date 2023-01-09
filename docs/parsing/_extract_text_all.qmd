@@ -1,0 +1,24 @@
+::: {.panel-tabset}
+
+##### lxml.html
+
+```python
+uls = root.xpath('//ul')
+text = "".join([ul.text_content() for ul in uls])
+```
+
+##### BeautifulSoup
+
+```python
+uls = root.find_all('ul')
+text = "".join([ul.get_text() for ul in uls])
+```
+
+##### Selectolax
+
+```python
+uls = root.css('ul')
+text = "".join([ul.text() for ul in uls])
+```
+
+:::

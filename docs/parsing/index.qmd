@@ -143,6 +143,7 @@ Of course, this is not a very clean solution requiring mixing of two APIs and wo
 At their core, all of these APIs provide a method to parse a string of HTML, and then a node API where most of the work is done.
 One measure of complexity is taking a look at what methods and properties are available on each library's node type.
 
+
 | Library | Class Name | Methods | Public Properties |
 | --- | --- | --- | --- |
 | Beautiful Soup | `bs4.element.Tag` | 69 | 39 | 

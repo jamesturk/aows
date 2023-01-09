@@ -10,7 +10,9 @@ To compare these libraries, I wrote a series of benchmarks to evaluate the perfo
 
 The initial parse of the HTML is likely the most expensive part of the scraping process. This benchmark measures the time it takes to parse the HTML using each library.
 
-{{y include _parsing_html.qmd >}}
+#### Example 6.1: Parsing HTML
+
+{{< include _parsing_html.qmd >}}
 
 ##### Results
 
@@ -48,7 +50,7 @@ Parsing this page is so much faster than the larger more complex pages used for 
 
 This benchmark uses each library to find all `<a>` tags with an `href` attribute.  This is a common task for scrapers and given the number of links on the two test pages, should be a good test of the libraries capabilities. The libraries have different ways of doing this, so I used the most natural way for each library based on their documentation.
 
-##### Code
+#### Example 6.2: Extracting Links (Natural)
 
 {{< include _extracting_links.qmd >}}
 
@@ -60,11 +62,11 @@ This benchmark uses each library to find all `<a>` tags with an `href` attribute
 |:---------------------------|---------------:|-------------:|
 | lxml.html                  |     0.0241     |     11x      |
 | Parsel                     |     0.0469     |     21x      |
-| BeautifulSoup[html.parser] |     0.0999     |     44x      |
-| BeautifulSoup[html5lib]    |     0.0998     |     45x      |
-| BeautifulSoup[lxml]        |     0.101      |     44x      |
-| Selectolax[modest]         |     0.00228    |      1x      |
-| Selectolax[lexbor]         |     0.00236    |      1x      |
+| BeautifulSoup\[html.parser] |     0.0999     |     44x      |
+| BeautifulSoup\[html5lib]    |     0.0998     |     45x      |
+| BeautifulSoup\[lxml]        |     0.101      |     44x      |
+| Selectolax\[modest]         |     0.00228    |      1x      |
+| Selectolax\[lexbor]         |     0.00236    |      1x      |
 
 Once again, Selectolax is in the lead. `lxml` and `parsel` are close, with `parsel`'s overhead adding a bit of time. `BeautifulSoup` is again very slow, it looks to be essentially the same speed regardless of parser. This suggests that once the DOM is parsed, BeautifulSoup is using its native methods for finding nodes, making it slower than a wrapper like `parsel` that takes advantage of `lxml`'s underlying speed.
 
@@ -80,6 +82,8 @@ I wanted to take a look at another way of getting the same data, in part to see 
 For lxml to support this feature, it needs the [cssselect](https://pypi.org/project/cssselect/) library installed.
 :::
 
+#### Example 6.3: Extracting Links (CSS)
+
 {{< include _links_css.qmd >}}
 
 ##### Results
@@ -90,11 +94,11 @@ For lxml to support this feature, it needs the [cssselect](https://pypi.org/proj
 |:---------------------------|---------------:|-------------:|
 | lxml.html                  |     0.0176     |      8x  |
 | Parsel                     |     0.0397     |     19x  |
-| BeautifulSoup[html.parser] |     0.181      |     86x  |
-| BeautifulSoup[html5lib]    |     0.207      |     99x  |
-| BeautifulSoup[lxml]        |     0.183      |     88x  |
-| Selectolax[modest]         |     0.00210    |      1x  |
-| Selectolax[lexbor]         |     0.00233    |      1x  |
+| BeautifulSoup\[html.parser] |     0.181      |     86x  |
+| BeautifulSoup\[html5lib]    |     0.207      |     99x  |
+| BeautifulSoup\[lxml]        |     0.183      |     88x  |
+| Selectolax\[modest]         |     0.00210    |      1x  |
+| Selectolax\[lexbor]         |     0.00233    |      1x  |
 
 These results didn't change much, the main difference is that `BeautifulSoup` got about twice as slow.
 
@@ -106,7 +110,7 @@ This did show that CSS Selectors are just as fast in lxml as XPath which is good
 
 For this benchmark we'll walk the DOM tree and count the number of elements.  DOM Traversal is just about the worst way to get data out of HTML, but sometimes it is necessary.
 
-{{{ .callout-note }}}
+::: .callout-note
 
 ##### `parsel`
 
@@ -116,6 +120,10 @@ For this benchmark we'll walk the DOM tree and count the number of elements.  DO
     It is also possible to use `parsel` to get the underlying `lxml` object and use that to traverse the DOM. If you are using `parsel` 
     and need to do DOM traversal, this is the recommended approach.
 
+:::
+
+#### Example 6.4: Gathering All Elements
+
 {{< include _all_elements.qmd >}}
 
 ![](/img/count_elements.png)
@@ -123,11 +131,11 @@ For this benchmark we'll walk the DOM tree and count the number of elements.  DO
 | implementation             |   average_time |   normalized |
 |:---------------------------|---------------:|-------------:|
 | lxml.html                  |      0.0281    |      1.3x   |
-| BeautifulSoup[html.parser] |      0.0229    |      1.1x   |
-| BeautifulSoup[html5lib]    |      0.0248    |      1.2x   |
-| BeautifulSoup[lxml]        |      0.0221    |      1.04x  |
-| Selectolax[modest]         |      0.0212    |      1.0x   |
-| Selectolax[lexbor]         |      0.0239    |      1.1x   |
+| BeautifulSoup\[html.parser] |      0.0229    |      1.1x   |
+| BeautifulSoup\[html5lib]    |      0.0248    |      1.2x   |
+| BeautifulSoup\[lxml]        |      0.0221    |      1.04x  |
+| Selectolax\[modest]         |      0.0212    |      1.0x   |
+| Selectolax\[lexbor]         |      0.0239    |      1.1x   |
 
 The variance here is the lowest of any of the benchmarks.  All implementations need to do roughly the same work, traversing an already-built tree of HTML nodes in Python. `lxml.html` is actually the slowest here, but it seems unlikely node-traversal will be a bottleneck in any case.
 
@@ -140,31 +148,15 @@ These functions extract all of the text from a node and it's descendants and are
 
 `parsel` does not have an equivalent function, favoring a different approach to text extraction.
 
+:::
+
 These methods are used to extract all of the text from a block of HTML. This is useful for things like extracting large blocks of plain text with some markup.
 
 For this benchmark in particular, we'll extract text from each of the `<ul>` tags on the page.
 
-##### Code
+#### Example 6.5: Extracting Text
 
-=== "lxml.html"
-
-    ```python
-    uls = root.xpath('//ul')
-    text = "".join([ul.text_content() for ul in uls])
-    ```
-=== "BeautifulSoup"
-
-    ```python
-    uls = root.find_all('ul')
-    text = "".join([ul.get_text() for ul in uls])
-    ```
-
-=== "Selectolax"
-
-    ```python
-    uls = root.css('ul')
-    text = "".join([ul.text() for ul in uls])
-    ```
+{{< include _extract_text_all.qmd >}}}
 
 ##### Results
 
@@ -173,11 +165,11 @@ For this benchmark in particular, we'll extract text from each of the `<ul>` tag
 | implementation             |   average_time |   normalized |
 |:---------------------------|---------------:|-------------:|
 | lxml.html                  |     0.00938    |      1x      |
-| BeautifulSoup[html.parser] |     0.0508     |      5x  |
-| BeautifulSoup[html5lib]    |     0.0536     |      6x |
-| BeautifulSoup[lxml]        |     0.0506     |      5x |
-| Selectolax[modest]         |     0.0250     |      3x |
-| Selectolax[lexbor]         |     0.0237     |      2x |
+| BeautifulSoup\[html.parser] |     0.0508     |      5x  |
+| BeautifulSoup\[html5lib]    |     0.0536     |      6x |
+| BeautifulSoup\[lxml]        |     0.0506     |      5x |
+| Selectolax\[modest]         |     0.0250     |      3x |
+| Selectolax\[lexbor]         |     0.0237     |      2x |
 
 Here `lxml` is the clear winner.  With fewer `<ul>` elements on the page, `selectolax` keeps up, but with the pyindex example the difference becomes more clear.
 

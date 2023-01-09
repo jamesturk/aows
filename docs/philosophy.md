@@ -1,10 +1,13 @@
 # Scraping Philosophy
 
+If you are new to writing scrapers, it can be useful to establish a way of thinking about scrapers as a type of software.
+
 ## Scrapers Are Ugly
 
-A lot of the ugliest code you'll ever write is web scraping code.
+Web scraping code is probably some of the ugliest code you'll ever write.
 
-I always told new contributors, often less experienced developers coming in with an academic understanding of what clean code is, that they should understand that web scraping code can't be more elegant than the site it is scraping. If the HTML page you are dealing with is full of weird edge cases, your code will necessarily be full of weird edge cases too.
+I always told new contributors, often less experienced developers coming in with an academic understanding of what clean code is, that they should understand that web scraping code can't be more elegant than the site it is scraping.
+If the HTML page you are dealing with is full of weird edge cases, your code will necessarily be full of weird edge cases too.
 
 Also, many web scrapers are written to be run once and thrown away, in which case, who cares if it's ugly?
 

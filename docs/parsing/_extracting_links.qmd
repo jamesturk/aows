@@ -2,26 +2,26 @@
 
 ##### lxml.html
 
-    ```python
-    # in lxml, XPath is the native way to do this
-    links = root.xpath('//a[@href]')
-    ```
+```python
+# in lxml, XPath is the native way to do this
+links = root.xpath('//a[@href]')
+```
 ##### Beautiful Soup
 
-    ```python
-    # in BeautifulSoup, you'd typically use find_all
-    links = root.find_all('a', href=True)
-    ```
+```python
+# in BeautifulSoup, you'd typically use find_all
+links = root.find_all('a', href=True)
+```
 ##### Selectolax
 
-    ```python
-    # Selectolax is essentially a CSS Selector implementation
-    links = root.css('a[href]')
-    ```
+```python
+# Selectolax is essentially a CSS Selector implementation
+links = root.css('a[href]')
+```
 ##### Parsel
 
-    ```python
-    # Parsel is a wrapper around lxml, so we'll use xpath
-    links = root.xpath('//a[@href]')
-    ```
+```python
+# Parsel is a wrapper around lxml, so we'll use xpath
+links = root.xpath('//a[@href]')
+```
 :::

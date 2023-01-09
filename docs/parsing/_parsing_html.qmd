@@ -1,4 +1,4 @@
-::: panel-tabset
+::: {.panel-tabset}
 
 ##### lxml.html
 

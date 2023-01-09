@@ -1,5 +1,9 @@
 # Web Scraping 101
 
+::: {.callout-tip}
+If you're familiar with web scraping it may make sense to skip this chapter.
+:::
+
 ## What is Web Scraping?
 
 ## Scraping vs. Crawling

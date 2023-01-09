@@ -1,1 +1,207 @@
 # CSS & XPath Selectors
+
+## CSS Selectors
+
+### What is CSS?
+
+If you've written HTML you are probably somewhat familiar with CSS.
+CSS, or Cascading Style Sheets, is a language for describing the presentation of HTML.
+
+A very simple style sheet might look something like:
+
+```css
+body {
+  background-color: white;
+  color: black;
+}
+a.link {
+  color: blue;
+}
+```
+
+This would make the entire body element white, with black text, and all links with the class "link" blue.
+
+Each statement above has two parts, the selector and the properties.
+The selector is the part that determines which elements the style will be applied to (e.g. the `<body>` element), and then the part within the curly braces determines the properties that will be applied to those elements (e.g. `background-color: white;`).
+
+CSS provides a powerful syntax for selecting elements to be styled.
+Websites can select elements that match very specific criteria so that (for instance) every third paragraph in an article is styled differently, or all links in a particular section have a distinct style.
+
+When we use CSS Selectors for scraping, we are leveraging this powerful syntax to pick one or more elements out of our parsed HTML tree.
+
+Here is an example HTML document:
+
+```html
+<html>
+  <body>
+    <div id="first" class="block">
+        <ul>
+            <li>One</li>
+            <li>Two</li>
+            <li>Three</li>
+        </ul>
+        <p class="inner">After the list</p>
+    </div>
+    <div id="second" class="block">
+        <div id="inner">
+            <p>Some text</p>
+        </div>
+    </div>
+  <body>
+</html>
+```
+
+### Basic Selectors
+
+**By Tag**
+
+Let's say someone wanted to get a list of all of the `<li>` elements in the document.
+
+The CSS selector for this would be `li`. A bare tag name will match all elements of that type.
+
+**By Class**
+
+If we wanted to get a list of all of the elements with the class `block`, we could use the selector `.block`. The `.` is used to indicate that we are selecting by class.  (I remember this by reminding myself that in most programming languages we access class attributes with a `.`.)
+
+If the class is used on multiple tags, like "inner" is in the example above, then the selector will match all of those elements.
+
+You can combine selection by tag and by class with a selector like `p.inner`. This will match all `<p>` elements with the class `inner`, but not the `<div>` element with the same class.
+
+**By ID**
+
+To select by the `id` attribute, you use a `#` instead of a `.`.
+For example, to get the div with the id `first`, you would use the selector `#first`.
+
+IDs are meant to be unique within HTML documents, so you typically do not need to combine this with a tag, but it is possible to do so if you need to. (e.g. `div#first`)
+
+**By Other Attribute**
+
+While `id` and `class` are the most common attributes and are treated specially by CSS, you can select by any attribute using special attribute selectors.
+
+| Attribute Selector | Description |
+| :--- | :--- |
+| `[attr]` | Selects all elements with the attribute `attr`. |
+| `[attr=val]` | Selects all elements with the attribute `attr` with value `val`. |
+| `[attr~=val]` | Selects all elements with the attribute `attr` where one of the (space-separated) values is val. |
+| `[attr^=val]` | Selects all elements where `attr` starts with `val`. |
+| `[attr$=val]` | Selects all elements with `attr` ends with `val`. |
+| `[attr*=val]` | Selects all elements with `attr` contains `val`. |
+
+### Combinators
+
+You can combine selectors to select elements that match more than one criteria.
+
+| Combinator | Description |
+| :--- | :--- |
+| `A B` | Selects all B elements that are descendants of A. |
+| `A > B` | Selects all B elements that are children of A. |
+| `A + B` | Selects all B elements that are immediately preceded by A. |
+| `A ~ B` | Selects all B elements that are preceded by A. |
+
+A and B can be any other CSS selector, for example:
+
+* `.block #inner` will select all elements with the id `inner` that are descendants of elements with the class `block`. 
+* `ul > li` will select all `<p>` elements that are children of a `<div>`.
+
+### Psuedo-Classes
+
+Psuedo-classes are special selectors that select elements based on their state.
+
+| Psuedo-Class | Description |
+| :--- | :--- |
+| `:first-child` | Selects all elements that are the first child of their parent. |
+| `:last-child` | Selects all elements that are the last child of their parent. |
+| `:nth-child(n)` | Selects all elements that are the nth child of their parent. |
+| `:only-child` | Selects all elements that are the only child of their parent. |
+
+Others may be available as well, depending on the CSS selector engine you are using.
+
+For `cssselect`, which powers `lxml` and `parsel`'s CSS selector support you can visit https://cssselect.readthedocs.io/en/latest/#supported-selectors for more details.
+
+## XPath Selectors
+
+XPath is a language designed for selecting elements in XML documents.
+
+Since HTML is a close cousin to XML, it is possible to use XPath syntax against an HTML document.
+
+### XPath Syntax
+
+When you evaluate XPath against a document, you are either evaluating against the root node (`<html>`) or some already-selected child node.
+
+If you want to search for matches anywhere in the document, you'd start your XPath with `//`.  So `//div` would select all `<div>` elements anywhere in the document.
+
+It is also possible to start from a given node, for example `./div` would select all `<div>` elements that are children of the current node.
+
+You can also use `..` to select the parent of the current node, so `../div` would select all `<div>` elements that are children of the parent of the current node.
+
+### Location Steps
+
+XPath makes it possible to do a fairly complex navigation of the parse tree using a syntax called location steps.
+
+An XPath like `//div/p/a` will select all `<a>` elements that are descendants of a `<p>` element that is a descendant of a `<div>` element.  Each piece between the slashes is known as a "location step".
+
+A location step can take the form `axis::node_type[predicate]` with each of the three parts are optional.
+
+Up until now our examples have just been using node types.  Node types are the name of a given tag, or `*` to match all elements.
+
+#### Predicates
+
+**Selecting by Attribute**
+
+You can select elements by attribute using syntax like `//div[@id="first"]`. This will select all `<div>` elements with the `id` attribute set to `first`.
+
+Unlike CSS, there is no special syntax for `id` and `class`, all attributes can be selected in the same manner.  `//div[@attr=val]` will select all `<div>` elements with the attribute `attr` set to `val`.
+
+The `[]` syntax seen when selecting by attribute is actually a very powerful tool called a predicate.
+
+Useful predicates:
+
+`[1]` selects the first element matched by the slashed portion of the XPath (e.g. `//div[1]` selects the first `<div>` element in the document).  (**Note**: XPath is 1-indexed not 0-indexed.)
+
+`[last()]` selects the last element matched by the slashed portion of the XPath (e.g. `//div[last()]` selects the last `<div>` element in the document).
+
+`./li[position() < 4]` selects the first three elements that match `./li`.
+
+`//a[contains(@href, "pdf")]` matches all `<a>` tags where the `href` attribute contains "pdf".
+
+#### Axes
+
+Axes in XPath allow for selection on relationships to the current node.
+
+To use an axis, you precede the node portion of the XPath with the axis name, followed by `::`.
+
+For example, `//p/ancestor::div` will select all `<div>` elements that are ancestors of a `<p>` element.
+
+Some of the most useful axes:
+
+* `ancestor` selects all ancestors of the current node.
+* `ancestor-or-self` selects all ancestors of the current node, and the current node itself.
+* `child` selects all children of the current node.
+* `descendant` selects all descendants of the current node.
+* `following-sibling` selects all siblings of the current node that come after it.
+* `preceding-sibling` selects all siblings of the current node that come before it.
+
+### A Special Note: Class Selectors
+
+There's a common gotcha that arises when using XPath to select elements by class.
+
+CSS treats an element like `<div class="abc xyz">` as having two classes, `abc` and `xyz`.
+
+One might think then that the equivalent of the CSS selector `div.abc.xyz` would look like: `//div[@class="abc" and @class="xyz"]`.
+This however will not work, because in XPath all attributes are strings, and `@class` is a space-separated list of classes.
+You could match using `//div[@class="abc xyz"]` but that would only match if that is the order, whereas CSS selectors are not order-dependent.
+
+If you are doing a lot of matching on classes, CSS selectors are probably the more robust choice.
+
+## Quick Reference
+
+| CSS Selector | XPath Selector | Description |
+| :- | :-- | :----- |
+| `div` | `//div` | Selects all div elements. |
+| `#xyz` | `//*[@id="xyz"]` | Selects an element with the id 'xyz'. |
+| `.xyz` | `//*[@class="xyz"]` | Selects an element with the class 'xyz'. |
+| `div.xyz` | `//div[@class="xyz"]` | Selects all div elements with the class 'xyz'. |
+| `div > p` | `//div/p` | Selects all p elements that are children of a div element. |
+| `div p` | `//div//p` | Selects all p elements that are descendants of a div element. |
+| `div + p` | `//div/following-sibling::p[1]` | Selects the first p element that is a sibling of a div element. |
+| `div ~ p` | `//div/following-sibling::p` | Selects all p elements that are siblings of a div element. |
