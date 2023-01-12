@@ -1,0 +1,6 @@
+*.pyc
+cache/
+.ipynb_checkpoints/
+output.bin
+.quarto
+_book

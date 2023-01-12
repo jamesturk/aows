@@ -1,0 +1,44 @@
+site_name: Art of Web Scraping
+site_url: https://jamesturk.github.io/aows/
+site_author: James Turk
+site_description: A modern guide to writing web scrapers in Python.
+copyright: <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+repo_url: https://github.com/jamesturk/aows/
+repo_name: jamesturk/aows
+# edit_url: edit/main/docs
+
+theme: 
+# logo:
+  name: material
+  palette:
+    - scheme: default
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to dark mode
+    - scheme: slate
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to light mode
+markdown_extensions:
+  - tables
+  - admonition
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+extra_css:
+  - stylesheets/extra.css
+nav:
+  - introduction.md
+  - philosophy.md
+  # - Making Requests:
+  #   - requests/libraries.md
+  #   - requests/caching.md
+  - Parsing Libraries:
+    - parsing/index.md
+    - parsing/features.md
+    - parsing/performance.md
+    - parsing/bad_html.md
