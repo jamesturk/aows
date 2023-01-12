@@ -124,15 +124,28 @@ XPath is a language designed for selecting elements in XML documents.
 
 Since HTML is a close cousin to XML, it is possible to use XPath syntax against an HTML document.
 
-### XPath Syntax
+XPath describes a means of navigating from a starting point in the document to the desired element(s).
 
-When you evaluate XPath against a document, you are either evaluating against the root node (`<html>`) or some already-selected child node.
+### Starting Point
 
-If you want to search for matches anywhere in the document, you'd start your XPath with `//`.  So `//div` would select all `<div>` elements anywhere in the document.
+When you use an XPath selector, you are starting from a particular node in the document.
 
-It is also possible to start from a given node, for example `./div` would select all `<div>` elements that are children of the current node.
+When using `lxml.html` or `parsel` for example you typically parse the entire HTML document, so you are starting from the root node, which is the `<html>` element.
 
-You can also use `..` to select the parent of the current node, so `../div` would select all `<div>` elements that are children of the parent of the current node.
+If you have that element in a node named `root`, you can use `root.xpath()` to evaluate XPath expressions using that as the starting node.
+
+As you navigate the tree, you might use other nodes as a starting point.  For instance, you find a `<div>` element that contains the content you need, and you want to select all of the `<a>` elements that are children of that `<div>`.
+
+Here are some examples:
+
+| XPath | Description |
+| :--- | :--- |
+| `//a` | Selects all `<a>` elements anywhere in the document. |
+| `.//a` | Selects all `<a>` elements anywhere within the current node. |
+| `./a` | Selects all `<a>` elements that are immediate children of the current node. |
+| `../a` | Selects all `<a>` elements that are children of the parent of the current node. (siblings) |
+
+These XPath expressions will return different results depending on the starting point.
 
 ### Location Steps
 
@@ -140,21 +153,25 @@ XPath makes it possible to do a fairly complex navigation of the parse tree usin
 
 An XPath like `//div/p/a` will select all `<a>` elements that are descendants of a `<p>` element that is a descendant of a `<div>` element.  Each piece between the slashes is known as a "location step".
 
-A location step can take the form `axis::node_type[predicate]` with each of the three parts are optional.
+A location step is in the form `axis::node_type[predicate]`, only `node_type` is required.
 
-Up until now our examples have just been using node types.  Node types are the name of a given tag, or `*` to match all elements.
+The examples above just use the node type portion.  Node types are the name of a tag (e.g. `div`, `a`, `tr`), or `*` to match all elements.
 
 #### Predicates
+
+The predicate portion of a location step allows filtering of the elements that match the node type.
 
 **Selecting by Attribute**
 
 You can select elements by attribute using syntax like `//div[@id="first"]`. This will select all `<div>` elements with the `id` attribute set to `first`.
 
+Similarly, `//div[@class="block"]` will select all `<div>` elements with the `class` attribute set to `block`.
+
 Unlike CSS, there is no special syntax for `id` and `class`, all attributes can be selected in the same manner.  `//div[@attr=val]` will select all `<div>` elements with the attribute `attr` set to `val`.
 
-The `[]` syntax seen when selecting by attribute is actually a very powerful tool called a predicate.
+**Useful predicates**
 
-Useful predicates:
+Not all predicates are attribute selectors.
 
 `[1]` selects the first element matched by the slashed portion of the XPath (e.g. `//div[1]` selects the first `<div>` element in the document).  (**Note**: XPath is 1-indexed not 0-indexed.)
 
@@ -163,6 +180,8 @@ Useful predicates:
 `./li[position() < 4]` selects the first three elements that match `./li`.
 
 `//a[contains(@href, "pdf")]` matches all `<a>` tags where the `href` attribute contains "pdf".
+
+`text()` matches the text content of the current node.  `//a[text()="Next Page"]` matches all `<a>` tags where the text content is "Next Page".
 
 #### Axes
 
@@ -181,7 +200,7 @@ Some of the most useful axes:
 * `following-sibling` selects all siblings of the current node that come after it.
 * `preceding-sibling` selects all siblings of the current node that come before it.
 
-### A Special Note: Class Selectors
+### Caveat: Class Selectors in XPath
 
 There's a common gotcha that arises when using XPath to select elements by class.
 

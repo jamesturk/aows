@@ -30,7 +30,7 @@ book:
         - parsing/index.qmd
         - other-libraries.qmd
   appendices: 
-      - selectors.qmd
+      - selectors/index.qmd
   
 
 format:
