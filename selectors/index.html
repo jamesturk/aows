@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.313">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Art of Web Scraping - Appendix A — CSS &amp; XPath Selectors</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../other-libraries.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-sidebar docked">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+    <div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title">Appendix A — CSS &amp; XPath Selectors</h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Art of Web Scraping</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="https://github.com/jamesturk/aows/tree/main/docs/" title="Source Code" class="sidebar-tool px-1"><i class="bi bi-github"></i></a>
+    <a href="../Art-of-Web-Scraping.pdf" title="Download PDF" class="sidebar-tool px-1"><i class="bi bi-file-pdf"></i></a>
+    <a href="" title="Share" id="sidebar-tool-dropdown-0" class="sidebar-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-share"></i></a>
+    <ul class="dropdown-menu" aria-labelledby="sidebar-tool-dropdown-0">
+        <li>
+          <a class="dropdown-item sidebar-tools-main-item" href="https://twitter.com/intent/tweet?url=|url|">
+            <i class="bi bi-bi-twitter pe-1"></i>
+          Twitter
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item sidebar-tools-main-item" href="https://www.linkedin.com/sharing/share-offsite/?url=|url|">
+            <i class="bi bi-bi-linkedin pe-1"></i>
+          LinkedIn
+          </a>
+        </li>
+    </ul>
+  <a href="" class="quarto-color-scheme-toggle sidebar-tool" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+    </div>
+      </div>
+      <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">Introduction</a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">Understanding Web Scraping</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../101.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Web Scraping 101</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../philosophy.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Scraping Philosophy</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../best-practices.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Best Practices</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../ethical-legal.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Ethics &amp; Legal Issues</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">Python Scraping Ecosystem</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../requests/index.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Making Requests</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../parsing/index.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Parsing HTML</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../other-libraries.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Other Libraries</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">Appendices</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../selectors/index.html" class="sidebar-item-text sidebar-link active"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">CSS &amp; XPath Selectors</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#css-selectors" id="toc-css-selectors" class="nav-link active" data-scroll-target="#css-selectors"><span class="toc-section-number">A.1</span>  CSS Selectors</a>
+  <ul class="collapse">
+  <li><a href="#what-is-css" id="toc-what-is-css" class="nav-link" data-scroll-target="#what-is-css"><span class="toc-section-number">A.1.1</span>  What is CSS?</a></li>
+  <li><a href="#basic-selectors" id="toc-basic-selectors" class="nav-link" data-scroll-target="#basic-selectors"><span class="toc-section-number">A.1.2</span>  Basic Selectors</a></li>
+  <li><a href="#combinators" id="toc-combinators" class="nav-link" data-scroll-target="#combinators"><span class="toc-section-number">A.1.3</span>  Combinators</a></li>
+  <li><a href="#psuedo-classes" id="toc-psuedo-classes" class="nav-link" data-scroll-target="#psuedo-classes"><span class="toc-section-number">A.1.4</span>  Psuedo-Classes</a></li>
+  </ul></li>
+  <li><a href="#xpath-selectors" id="toc-xpath-selectors" class="nav-link" data-scroll-target="#xpath-selectors"><span class="toc-section-number">A.2</span>  XPath Selectors</a>
+  <ul class="collapse">
+  <li><a href="#starting-point" id="toc-starting-point" class="nav-link" data-scroll-target="#starting-point"><span class="toc-section-number">A.2.1</span>  Starting Point</a></li>
+  <li><a href="#location-steps" id="toc-location-steps" class="nav-link" data-scroll-target="#location-steps"><span class="toc-section-number">A.2.2</span>  Location Steps</a></li>
+  <li><a href="#caveat-class-selectors-in-xpath" id="toc-caveat-class-selectors-in-xpath" class="nav-link" data-scroll-target="#caveat-class-selectors-in-xpath"><span class="toc-section-number">A.2.3</span>  Caveat: Class Selectors in XPath</a></li>
+  </ul></li>
+  <li><a href="#quick-reference" id="toc-quick-reference" class="nav-link" data-scroll-target="#quick-reference"><span class="toc-section-number">A.3</span>  Quick Reference</a></li>
+  </ul>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/jamesturk/aows/edit/main/docs/selectors/index.qmd" class="toc-action">Edit this page</a></p><p><a href="https://github.com/jamesturk/aows/issues/new" class="toc-action">Report an issue</a></p><p><a href="https://github.com/jamesturk/aows/blob/main/docs/selectors/index.qmd" class="toc-action">View source</a></p></div></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title d-none d-lg-block">Appendix A — CSS &amp; XPath Selectors</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="css-selectors" class="level2" data-number="A.1">
+<h2 data-number="A.1" class="anchored" data-anchor-id="css-selectors"><span class="header-section-number">A.1</span> CSS Selectors</h2>
+<section id="what-is-css" class="level3" data-number="A.1.1">
+<h3 data-number="A.1.1" class="anchored" data-anchor-id="what-is-css"><span class="header-section-number">A.1.1</span> What is CSS?</h3>
+<p>If you’ve written HTML you are probably somewhat familiar with CSS. CSS, or Cascading Style Sheets, is a language for describing the presentation of HTML.</p>
+<p>A very simple style sheet might look something like:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode css code-with-copy"><code class="sourceCode css"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>body {</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">background-color</span>: <span class="cn">white</span><span class="op">;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">color</span>: <span class="cn">black</span><span class="op">;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>a<span class="fu">.link</span> {</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">color</span>: <span class="cn">blue</span><span class="op">;</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This would make the entire body element white, with black text, and all links with the class “link” blue.</p>
+<p>Each statement above has two parts, the selector and the properties. The selector is the part that determines which elements the style will be applied to (e.g.&nbsp;the <code>&lt;body&gt;</code> element), and then the part within the curly braces determines the properties that will be applied to those elements (e.g.&nbsp;<code>background-color: white;</code>).</p>
+<p>CSS provides a powerful syntax for selecting elements to be styled. Websites can select elements that match very specific criteria so that (for instance) every third paragraph in an article is styled differently, or all links in a particular section have a distinct style.</p>
+<p>When we use CSS Selectors for scraping, we are leveraging this powerful syntax to pick one or more elements out of our parsed HTML tree.</p>
+<p>Here is an example HTML document:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode html code-with-copy"><code class="sourceCode html"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;html&gt;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">&lt;body&gt;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;div</span> <span class="er">id</span><span class="ot">=</span><span class="st">"first"</span> <span class="er">class</span><span class="ot">=</span><span class="st">"block"</span><span class="kw">&gt;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;ul&gt;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>            <span class="kw">&lt;li&gt;</span>One<span class="kw">&lt;/li&gt;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>            <span class="kw">&lt;li&gt;</span>Two<span class="kw">&lt;/li&gt;</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>            <span class="kw">&lt;li&gt;</span>Three<span class="kw">&lt;/li&gt;</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;/ul&gt;</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;p</span> <span class="er">class</span><span class="ot">=</span><span class="st">"inner"</span><span class="kw">&gt;</span>After the list<span class="kw">&lt;/p&gt;</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;/div&gt;</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;div</span> <span class="er">id</span><span class="ot">=</span><span class="st">"second"</span> <span class="er">class</span><span class="ot">=</span><span class="st">"block"</span><span class="kw">&gt;</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;div</span> <span class="er">id</span><span class="ot">=</span><span class="st">"inner"</span><span class="kw">&gt;</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>            <span class="kw">&lt;p&gt;</span>Some text<span class="kw">&lt;/p&gt;</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;/div&gt;</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;/div&gt;</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="kw">&lt;body&gt;</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;/html&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="basic-selectors" class="level3" data-number="A.1.2">
+<h3 data-number="A.1.2" class="anchored" data-anchor-id="basic-selectors"><span class="header-section-number">A.1.2</span> Basic Selectors</h3>
+<p><strong>By Tag</strong></p>
+<p>Let’s say someone wanted to get a list of all of the <code>&lt;li&gt;</code> elements in the document.</p>
+<p>The CSS selector for this would be <code>li</code>. A bare tag name will match all elements of that type.</p>
+<p><strong>By Class</strong></p>
+<p>If we wanted to get a list of all of the elements with the class <code>block</code>, we could use the selector <code>.block</code>. The <code>.</code> is used to indicate that we are selecting by class. (I remember this by reminding myself that in most programming languages we access class attributes with a <code>.</code>.)</p>
+<p>If the class is used on multiple tags, like “inner” is in the example above, then the selector will match all of those elements.</p>
+<p>You can combine selection by tag and by class with a selector like <code>p.inner</code>. This will match all <code>&lt;p&gt;</code> elements with the class <code>inner</code>, but not the <code>&lt;div&gt;</code> element with the same class.</p>
+<p><strong>By ID</strong></p>
+<p>To select by the <code>id</code> attribute, you use a <code>#</code> instead of a <code>.</code>. For example, to get the div with the id <code>first</code>, you would use the selector <code>#first</code>.</p>
+<p>IDs are meant to be unique within HTML documents, so you typically do not need to combine this with a tag, but it is possible to do so if you need to. (e.g.&nbsp;<code>div#first</code>)</p>
+<p><strong>By Other Attribute</strong></p>
+<p>While <code>id</code> and <code>class</code> are the most common attributes and are treated specially by CSS, you can select by any attribute using special attribute selectors.</p>
+<table class="table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Attribute Selector</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>[attr]</code></td>
+<td style="text-align: left;">Selects all elements with the attribute <code>attr</code>.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>[attr=val]</code></td>
+<td style="text-align: left;">Selects all elements with the attribute <code>attr</code> with value <code>val</code>.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>[attr~=val]</code></td>
+<td style="text-align: left;">Selects all elements with the attribute <code>attr</code> where one of the (space-separated) values is val.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>[attr^=val]</code></td>
+<td style="text-align: left;">Selects all elements where <code>attr</code> starts with <code>val</code>.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>[attr$=val]</code></td>
+<td style="text-align: left;">Selects all elements with <code>attr</code> ends with <code>val</code>.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>[attr*=val]</code></td>
+<td style="text-align: left;">Selects all elements with <code>attr</code> contains <code>val</code>.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="combinators" class="level3" data-number="A.1.3">
+<h3 data-number="A.1.3" class="anchored" data-anchor-id="combinators"><span class="header-section-number">A.1.3</span> Combinators</h3>
+<p>You can combine selectors to select elements that match more than one criteria.</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Combinator</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>A B</code></td>
+<td style="text-align: left;">Selects all B elements that are descendants of A.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>A &gt; B</code></td>
+<td style="text-align: left;">Selects all B elements that are children of A.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>A + B</code></td>
+<td style="text-align: left;">Selects all B elements that are immediately preceded by A.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>A ~ B</code></td>
+<td style="text-align: left;">Selects all B elements that are preceded by A.</td>
+</tr>
+</tbody>
+</table>
+<p>A and B can be any other CSS selector, for example:</p>
+<ul>
+<li><code>.block #inner</code> will select all elements with the id <code>inner</code> that are descendants of elements with the class <code>block</code>.</li>
+<li><code>ul &gt; li</code> will select all <code>&lt;p&gt;</code> elements that are children of a <code>&lt;div&gt;</code>.</li>
+</ul>
+</section>
+<section id="psuedo-classes" class="level3" data-number="A.1.4">
+<h3 data-number="A.1.4" class="anchored" data-anchor-id="psuedo-classes"><span class="header-section-number">A.1.4</span> Psuedo-Classes</h3>
+<p>Psuedo-classes are special selectors that select elements based on their state.</p>
+<table class="table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Psuedo-Class</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>:first-child</code></td>
+<td style="text-align: left;">Selects all elements that are the first child of their parent.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>:last-child</code></td>
+<td style="text-align: left;">Selects all elements that are the last child of their parent.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>:nth-child(n)</code></td>
+<td style="text-align: left;">Selects all elements that are the nth child of their parent.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>:only-child</code></td>
+<td style="text-align: left;">Selects all elements that are the only child of their parent.</td>
+</tr>
+</tbody>
+</table>
+<p>Others may be available as well, depending on the CSS selector engine you are using.</p>
+<p>For <code>cssselect</code>, which powers <code>lxml</code> and <code>parsel</code>’s CSS selector support you can visit https://cssselect.readthedocs.io/en/latest/#supported-selectors for more details.</p>
+</section>
+</section>
+<section id="xpath-selectors" class="level2" data-number="A.2">
+<h2 data-number="A.2" class="anchored" data-anchor-id="xpath-selectors"><span class="header-section-number">A.2</span> XPath Selectors</h2>
+<p>XPath is a language designed for selecting elements in XML documents.</p>
+<p>Since HTML is a close cousin to XML, it is possible to use XPath syntax against an HTML document.</p>
+<p>XPath describes a means of navigating from a starting point in the document to the desired element(s).</p>
+<section id="starting-point" class="level3" data-number="A.2.1">
+<h3 data-number="A.2.1" class="anchored" data-anchor-id="starting-point"><span class="header-section-number">A.2.1</span> Starting Point</h3>
+<p>When you use an XPath selector, you are starting from a particular node in the document.</p>
+<p>When using <code>lxml.html</code> or <code>parsel</code> for example you typically parse the entire HTML document, so you are starting from the root node, which is the <code>&lt;html&gt;</code> element.</p>
+<p>If you have that element in a node named <code>root</code>, you can use <code>root.xpath()</code> to evaluate XPath expressions using that as the starting node.</p>
+<p>As you navigate the tree, you might use other nodes as a starting point. For instance, you find a <code>&lt;div&gt;</code> element that contains the content you need, and you want to select all of the <code>&lt;a&gt;</code> elements that are children of that <code>&lt;div&gt;</code>.</p>
+<p>Here are some examples:</p>
+<table class="table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">XPath</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>//a</code></td>
+<td style="text-align: left;">Selects all <code>&lt;a&gt;</code> elements anywhere in the document.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>.//a</code></td>
+<td style="text-align: left;">Selects all <code>&lt;a&gt;</code> elements anywhere within the current node.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>./a</code></td>
+<td style="text-align: left;">Selects all <code>&lt;a&gt;</code> elements that are immediate children of the current node.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>../a</code></td>
+<td style="text-align: left;">Selects all <code>&lt;a&gt;</code> elements that are children of the parent of the current node. (siblings)</td>
+</tr>
+</tbody>
+</table>
+<p>These XPath expressions will return different results depending on the starting point.</p>
+</section>
+<section id="location-steps" class="level3" data-number="A.2.2">
+<h3 data-number="A.2.2" class="anchored" data-anchor-id="location-steps"><span class="header-section-number">A.2.2</span> Location Steps</h3>
+<p>XPath makes it possible to do a fairly complex navigation of the parse tree using a syntax called location steps.</p>
+<p>An XPath like <code>//div/p/a</code> will select all <code>&lt;a&gt;</code> elements that are descendants of a <code>&lt;p&gt;</code> element that is a descendant of a <code>&lt;div&gt;</code> element. Each piece between the slashes is known as a “location step”.</p>
+<p>A location step is in the form <code>axis::node_type[predicate]</code>, only <code>node_type</code> is required.</p>
+<p>The examples above just use the node type portion. Node types are the name of a tag (e.g.&nbsp;<code>div</code>, <code>a</code>, <code>tr</code>), or <code>*</code> to match all elements.</p>
+<section id="predicates" class="level4">
+<h4 class="anchored" data-anchor-id="predicates">Predicates</h4>
+<p>The predicate portion of a location step allows filtering of the elements that match the node type.</p>
+<p><strong>Selecting by Attribute</strong></p>
+<p>You can select elements by attribute using syntax like <code>//div[@id="first"]</code>. This will select all <code>&lt;div&gt;</code> elements with the <code>id</code> attribute set to <code>first</code>.</p>
+<p>Similarly, <code>//div[@class="block"]</code> will select all <code>&lt;div&gt;</code> elements with the <code>class</code> attribute set to <code>block</code>.</p>
+<p>Unlike CSS, there is no special syntax for <code>id</code> and <code>class</code>, all attributes can be selected in the same manner. <code>//div[@attr=val]</code> will select all <code>&lt;div&gt;</code> elements with the attribute <code>attr</code> set to <code>val</code>.</p>
+<p><strong>Useful predicates</strong></p>
+<p>Not all predicates are attribute selectors.</p>
+<p><code>[1]</code> selects the first element matched by the slashed portion of the XPath (e.g.&nbsp;<code>//div[1]</code> selects the first <code>&lt;div&gt;</code> element in the document). (<strong>Note</strong>: XPath is 1-indexed not 0-indexed.)</p>
+<p><code>[last()]</code> selects the last element matched by the slashed portion of the XPath (e.g.&nbsp;<code>//div[last()]</code> selects the last <code>&lt;div&gt;</code> element in the document).</p>
+<p><code>./li[position() &lt; 4]</code> selects the first three elements that match <code>./li</code>.</p>
+<p><code>//a[contains(@href, "pdf")]</code> matches all <code>&lt;a&gt;</code> tags where the <code>href</code> attribute contains “pdf”.</p>
+<p><code>text()</code> matches the text content of the current node. <code>//a[text()="Next Page"]</code> matches all <code>&lt;a&gt;</code> tags where the text content is “Next Page”.</p>
+</section>
+<section id="axes" class="level4">
+<h4 class="anchored" data-anchor-id="axes">Axes</h4>
+<p>Axes in XPath allow for selection on relationships to the current node.</p>
+<p>To use an axis, you precede the node portion of the XPath with the axis name, followed by <code>::</code>.</p>
+<p>For example, <code>//p/ancestor::div</code> will select all <code>&lt;div&gt;</code> elements that are ancestors of a <code>&lt;p&gt;</code> element.</p>
+<p>Some of the most useful axes:</p>
+<ul>
+<li><code>ancestor</code> selects all ancestors of the current node.</li>
+<li><code>ancestor-or-self</code> selects all ancestors of the current node, and the current node itself.</li>
+<li><code>child</code> selects all children of the current node.</li>
+<li><code>descendant</code> selects all descendants of the current node.</li>
+<li><code>following-sibling</code> selects all siblings of the current node that come after it.</li>
+<li><code>preceding-sibling</code> selects all siblings of the current node that come before it.</li>
+</ul>
+</section>
+</section>
+<section id="caveat-class-selectors-in-xpath" class="level3" data-number="A.2.3">
+<h3 data-number="A.2.3" class="anchored" data-anchor-id="caveat-class-selectors-in-xpath"><span class="header-section-number">A.2.3</span> Caveat: Class Selectors in XPath</h3>
+<p>There’s a common gotcha that arises when using XPath to select elements by class.</p>
+<p>CSS treats an element like <code>&lt;div class="abc xyz"&gt;</code> as having two classes, <code>abc</code> and <code>xyz</code>.</p>
+<p>One might think then that the equivalent of the CSS selector <code>div.abc.xyz</code> would look like: <code>//div[@class="abc" and @class="xyz"]</code>. This however will not work, because in XPath all attributes are strings, and <code>@class</code> is a space-separated list of classes. You could match using <code>//div[@class="abc xyz"]</code> but that would only match if that is the order, whereas CSS selectors are not order-dependent.</p>
+<p>If you are doing a lot of matching on classes, CSS selectors are probably the more robust choice.</p>
+</section>
+</section>
+<section id="quick-reference" class="level2" data-number="A.3">
+<h2 data-number="A.3" class="anchored" data-anchor-id="quick-reference"><span class="header-section-number">A.3</span> Quick Reference</h2>
+<table class="table">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 27%">
+<col style="width: 54%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">CSS Selector</th>
+<th style="text-align: left;">XPath Selector</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>div</code></td>
+<td style="text-align: left;"><code>//div</code></td>
+<td style="text-align: left;">Selects all div elements.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>#xyz</code></td>
+<td style="text-align: left;"><code>//*[@id="xyz"]</code></td>
+<td style="text-align: left;">Selects an element with the id ‘xyz’.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>.xyz</code></td>
+<td style="text-align: left;"><code>//*[@class="xyz"]</code></td>
+<td style="text-align: left;">Selects an element with the class ‘xyz’.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>div.xyz</code></td>
+<td style="text-align: left;"><code>//div[@class="xyz"]</code></td>
+<td style="text-align: left;">Selects all div elements with the class ‘xyz’.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>div &gt; p</code></td>
+<td style="text-align: left;"><code>//div/p</code></td>
+<td style="text-align: left;">Selects all p elements that are children of a div element.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>div p</code></td>
+<td style="text-align: left;"><code>//div//p</code></td>
+<td style="text-align: left;">Selects all p elements that are descendants of a div element.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>div + p</code></td>
+<td style="text-align: left;"><code>//div/following-sibling::p[1]</code></td>
+<td style="text-align: left;">Selects the first p element that is a sibling of a div element.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>div ~ p</code></td>
+<td style="text-align: left;"><code>//div/following-sibling::p</code></td>
+<td style="text-align: left;">Selects all p elements that are siblings of a div element.</td>
+</tr>
+</tbody>
+</table>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  let localAlternateSentinel = 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../other-libraries.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Other Libraries</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+</body></html>

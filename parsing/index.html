@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.313">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Art of Web Scraping - 6&nbsp; Parsing HTML</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../other-libraries.html" rel="next">
+<link href="../requests/index.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-sidebar docked">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+    <div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Parsing HTML</span></h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Art of Web Scraping</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="https://github.com/jamesturk/aows/tree/main/docs/" title="Source Code" class="sidebar-tool px-1"><i class="bi bi-github"></i></a>
+    <a href="../Art-of-Web-Scraping.pdf" title="Download PDF" class="sidebar-tool px-1"><i class="bi bi-file-pdf"></i></a>
+    <a href="" title="Share" id="sidebar-tool-dropdown-0" class="sidebar-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-share"></i></a>
+    <ul class="dropdown-menu" aria-labelledby="sidebar-tool-dropdown-0">
+        <li>
+          <a class="dropdown-item sidebar-tools-main-item" href="https://twitter.com/intent/tweet?url=|url|">
+            <i class="bi bi-bi-twitter pe-1"></i>
+          Twitter
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item sidebar-tools-main-item" href="https://www.linkedin.com/sharing/share-offsite/?url=|url|">
+            <i class="bi bi-bi-linkedin pe-1"></i>
+          LinkedIn
+          </a>
+        </li>
+    </ul>
+  <a href="" class="quarto-color-scheme-toggle sidebar-tool" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+    </div>
+      </div>
+      <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">Introduction</a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">Understanding Web Scraping</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../101.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Web Scraping 101</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../philosophy.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Scraping Philosophy</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../best-practices.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Best Practices</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../ethical-legal.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Ethics &amp; Legal Issues</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">Python Scraping Ecosystem</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../requests/index.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Making Requests</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../parsing/index.html" class="sidebar-item-text sidebar-link active"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Parsing HTML</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../other-libraries.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Other Libraries</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">Appendices</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../selectors/index.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">CSS &amp; XPath Selectors</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction"><span class="toc-section-number">6.1</span>  Introduction</a></li>
+  <li><a href="#developer-experience" id="toc-developer-experience" class="nav-link" data-scroll-target="#developer-experience"><span class="toc-section-number">6.2</span>  Developer Experience</a>
+  <ul class="collapse">
+  <li><a href="#feature-comparison" id="toc-feature-comparison" class="nav-link" data-scroll-target="#feature-comparison"><span class="toc-section-number">6.2.1</span>  Feature Comparison</a></li>
+  <li><a href="#complexity" id="toc-complexity" class="nav-link" data-scroll-target="#complexity"><span class="toc-section-number">6.2.2</span>  Complexity</a></li>
+  <li><a href="#documentation" id="toc-documentation" class="nav-link" data-scroll-target="#documentation"><span class="toc-section-number">6.2.3</span>  Documentation</a></li>
+  </ul></li>
+  <li><a href="#speed-comparison" id="toc-speed-comparison" class="nav-link" data-scroll-target="#speed-comparison"><span class="toc-section-number">6.3</span>  Speed Comparison</a>
+  <ul class="collapse">
+  <li><a href="#parsing-html" id="toc-parsing-html" class="nav-link" data-scroll-target="#parsing-html"><span class="toc-section-number">6.3.1</span>  Parsing HTML</a></li>
+  <li><a href="#extracting-links" id="toc-extracting-links" class="nav-link" data-scroll-target="#extracting-links"><span class="toc-section-number">6.3.2</span>  Extracting Links</a></li>
+  <li><a href="#extracting-links-css" id="toc-extracting-links-css" class="nav-link" data-scroll-target="#extracting-links-css"><span class="toc-section-number">6.3.3</span>  Extracting Links (CSS)</a></li>
+  <li><a href="#counting-elements" id="toc-counting-elements" class="nav-link" data-scroll-target="#counting-elements"><span class="toc-section-number">6.3.4</span>  Counting Elements</a></li>
+  <li><a href="#extracting-text" id="toc-extracting-text" class="nav-link" data-scroll-target="#extracting-text"><span class="toc-section-number">6.3.5</span>  Extracting Text</a></li>
+  <li><a href="#real-world-scrape" id="toc-real-world-scrape" class="nav-link" data-scroll-target="#real-world-scrape"><span class="toc-section-number">6.3.6</span>  Real World Scrape</a></li>
+  </ul></li>
+  <li><a href="#memory-comparison" id="toc-memory-comparison" class="nav-link" data-scroll-target="#memory-comparison"><span class="toc-section-number">6.4</span>  Memory Comparison</a></li>
+  <li><a href="#does-performance-matter" id="toc-does-performance-matter" class="nav-link" data-scroll-target="#does-performance-matter"><span class="toc-section-number">6.5</span>  Does Performance Matter?</a></li>
+  <li><a href="#bad-html" id="toc-bad-html" class="nav-link" data-scroll-target="#bad-html"><span class="toc-section-number">6.6</span>  Bad HTML</a></li>
+  <li><a href="#conclusions" id="toc-conclusions" class="nav-link" data-scroll-target="#conclusions"><span class="toc-section-number">6.7</span>  Conclusions</a>
+  <ul class="collapse">
+  <li><a href="#beautiful-soup-4" id="toc-beautiful-soup-4" class="nav-link" data-scroll-target="#beautiful-soup-4"><span class="toc-section-number">6.7.1</span>  <code>Beautiful Soup</code></a></li>
+  <li><a href="#lxml-2" id="toc-lxml-2" class="nav-link" data-scroll-target="#lxml-2"><span class="toc-section-number">6.7.2</span>  <code>lxml</code></a></li>
+  <li><a href="#parsel-7" id="toc-parsel-7" class="nav-link" data-scroll-target="#parsel-7"><span class="toc-section-number">6.7.3</span>  <code>parsel</code></a></li>
+  <li><a href="#selectolax-6" id="toc-selectolax-6" class="nav-link" data-scroll-target="#selectolax-6"><span class="toc-section-number">6.7.4</span>  <code>selectolax</code></a></li>
+  </ul></li>
+  <li><a href="#environment" id="toc-environment" class="nav-link" data-scroll-target="#environment"><span class="toc-section-number">6.8</span>  Environment</a></li>
+  </ul>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/jamesturk/aows/edit/main/docs/parsing/index.qmd" class="toc-action">Edit this page</a></p><p><a href="https://github.com/jamesturk/aows/issues/new" class="toc-action">Report an issue</a></p><p><a href="https://github.com/jamesturk/aows/blob/main/docs/parsing/index.qmd" class="toc-action">View source</a></p></div></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title d-none d-lg-block"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Parsing HTML</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="introduction" class="level2" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="introduction"><span class="header-section-number">6.1</span> Introduction</h2>
+<p>In this section we’ll be looking at four libraries for parsing HTML:</p>
+<ul>
+<li><a href="https://www.crummy.com/software/Beautiful%20Soup/">Beautiful Soup</a></li>
+<li><a href="https://lxml.de/">lxml</a>, specifically <a href="https://lxml.de/lxmlhtml.html">lxml.html</a></li>
+<li><a href="https://github.com/rushter/selectolax">selectolax</a></li>
+<li>and <a href="https://parsel.readthedocs.io/en/latest/">parsel</a>, which is part of the <a href="https://scrapy.org/">Scrapy</a> framework.</li>
+</ul>
+<p><strong>Beautiful Soup</strong></p>
+<p>When people talk about Python libraries for writing web scrapers, they immediately go to <a href="https://www.crummy.com/software/Beautiful%20Soup/">Beautiful Soup</a>. Nearly 20 years old, it is one of the most well-established Python libraries out there. It is popular enough that I find that people are often surprised to learn there are viable alternatives.</p>
+<p>If you look on sites like Stack Overflow, the conventional wisdom is that Beautiful Soup is the most flexible, while lxml is much faster. We’ll be taking a look to see if that wisdom holds up.</p>
+<p>It is worth mentioning that Beautiful Soup 4 is a major departure from Beautiful Soup 3. So much so that when installing Beautiful Soup 4, you need to install the <code>beautifulsoup4</code> package from PyPI.</p>
+<p>Furthermore, as of version 4, Beautiful Soup works as a wrapper around a number of different parsers. Its <a href="https://www.crummy.com/software/Beautiful%20Soup/bs4/doc/#installing-a-parser">documentation</a> explains how to pick a parser and offers some conventional wisdom about which you should pick. The default parser is <a href="https://docs.python.org/3/library/html.parser.html">html.parser</a>, which is part of the Python standard library. You can also use lxml.html or html5lib. When it comes to evaluating the performance of Beautiful Soup, we’ll try all of these.</p>
+<p><strong>lxml.html</strong></p>
+<p><a href="https://lxml.de/">lxml</a> is a Python library for parsing XML, and comes with <code>lxml.html</code>, a submodule specifically designed for handling HTML. The library is a wrapper around the libxml2 and libxslt C libraries. This means that it is very fast, but also requires that you have the C libraries installed on your system.</p>
+<p>Until recently this was a bit of a challenge, but advances in Python packaging have made this process much easier in most environments.</p>
+<p>The conventional wisdom, as mentioned before, is that lxml is fast but perhaps not as flexible as other options. Anecdotally that has not been my experience, Open States switched to <a href="http://lxml.de/">lxml</a> around the time of the somewhat fraught Beautiful Soup 4 transition and never really looked back.</p>
+<p><strong>Selectolax</strong></p>
+<p>There’s also a much newer kid in town, <a href="https://github.com/rushter/selectolax">Selectolax</a>. It is a wrapper around a new open source HTML parsing library and claims to be even faster than lxml. It has a much smaller footprint than the other libraries, so it will be interesting to see how it stacks up against the more established libraries.</p>
+<p><strong>Parsel</strong></p>
+<p>Parsel is a library that is part of the popular <a href="https://scrapy.org/">Scrapy</a> framework. It is a wrapper around lxml, but provides a very different interface for extracting data from HTML.</p>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>These libraries are not exact peers of one another. This is most notable with the way that Beautiful Soup and lxml allow you to use different parsers, and Parsel is itself a wrapper around lxml.</p>
+<p>While unusual combinations may exist, most projects will pick one of these and use it for all of their parsing needs, so we’ll be looking at them through that lens.</p>
+</div>
+</div>
+<p>In this section, we’ll be taking a look at how these libraries stack up against one another.</p>
+<p>We’ll try to answer questions like:</p>
+<ul>
+<li>Which library offers the nicest developer experience?</li>
+<li>With Beautiful Soup offering a wrapper around lxml, is there any reason to use lxml directly if you’re using Beautiful Soup?</li>
+<li>Have Python speed improvements negated much of lxml’s performance advantage?</li>
+<li>How does Selectolax stack up against the more established libraries?</li>
+<li>How much does the flexibility of the parsers differ in 2023? Is it worth the performance hit to use html5lib?</li>
+</ul>
+<p>To start, we’ll take a look at the features that each offers before evaluating how they perform against one another.</p>
+</section>
+<section id="developer-experience" class="level2" data-number="6.2">
+<h2 data-number="6.2" class="anchored" data-anchor-id="developer-experience"><span class="header-section-number">6.2</span> Developer Experience</h2>
+<p>When it comes to writing resilient scrapers, the developer experience is perhaps the most important dimension. A nice, clean, and consistent API is an important factor in the cleanliness &amp; readability of your scraper code.</p>
+<p>We’ll compare the experience by looking at a few aspects of the developer experience:</p>
+<ul>
+<li>Features</li>
+<li>Complexity</li>
+<li>Documentation</li>
+<li>Common Tasks Compared</li>
+</ul>
+<p>It is also worth noting that all of the libraries are permissively licensed (either MIT or BSD) open source libraries. So on that front at least, the developer experience is the same.</p>
+<section id="feature-comparison" class="level3" data-number="6.2.1">
+<h3 data-number="6.2.1" class="anchored" data-anchor-id="feature-comparison"><span class="header-section-number">6.2.1</span> Feature Comparison</h3>
+<p>These libraries are all perfectly capable libraries, each provides HTML parsing as well as various selection mechanisms to extract content from the DOM.</p>
+<p>The main differences among them are which methods they provide for selecting nodes, and how they handle text extraction:</p>
+<div id="tbl-features" class="anchored">
+<table class="table">
+<caption>Table&nbsp;6.1: Feature Comparison</caption>
+<thead>
+<tr class="header">
+<th>Library</th>
+<th>XPath</th>
+<th>CSS</th>
+<th>DOM Traversal API</th>
+<th>Text Extraction</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>lxml</td>
+<td>✅</td>
+<td>✳</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr class="even">
+<td>Beautiful Soup</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr class="odd">
+<td>selectolax</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr class="even">
+<td>parsel</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>✳ <code>cssselect</code> must be installed separately but augments lxml.html to provide CSS selector support.</p>
+<section id="attribute-access" class="level4">
+<h4 class="anchored" data-anchor-id="attribute-access">Attribute Access</h4>
+<p>A common feature among all libraries is dictionary-like attribute access on nodes.</p>
+<section id="example-extracting-an-attributes-value" class="level5">
+<h5 class="anchored" data-anchor-id="example-extracting-an-attributes-value">Example: Extracting an attribute’s value</h5>
+<div class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>html <span class="op">=</span> <span class="st">"""&lt;a data="foo"&gt;"""</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" aria-current="page">lxml</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">BeautifulSoup</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false">Selectolax</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-4-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-4" role="tab" aria-controls="tabset-1-4" aria-selected="false">parsel</a></li></ul>
+<div class="tab-content">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<div class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> lxml.html</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>root <span class="op">=</span> lxml.html.fromstring(html)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>node <span class="op">=</span> root.xpath(<span class="st">'//a'</span>)[<span class="dv">0</span>]</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>node.attrib[<span class="st">'data'</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="2">
+<pre><code>'foo'</code></pre>
+</div>
+</div>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<div class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> bs4</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>root <span class="op">=</span> bs4.BeautifulSoup(html, <span class="st">'lxml'</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>node <span class="op">=</span> root.find(<span class="st">'a'</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>node[<span class="st">'data'</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="3">
+<pre><code>'foo'</code></pre>
+</div>
+</div>
+</div>
+<div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
+<div class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> selectolax.parser <span class="im">import</span> HTMLParser</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>root <span class="op">=</span> HTMLParser(html)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>node <span class="op">=</span> root.css_first(<span class="st">'a'</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>node.attributes[<span class="st">'data'</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="4">
+<pre><code>'foo'</code></pre>
+</div>
+</div>
+</div>
+<div id="tabset-1-4" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-4-tab">
+<div class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> parsel <span class="im">import</span> Selector</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>root <span class="op">=</span> Selector(html)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>node <span class="op">=</span> root.xpath(<span class="st">'//a'</span>)[<span class="dv">0</span>]</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>node.attrib[<span class="st">'data'</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="5">
+<pre><code>'foo'</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="pluggable-parsers" class="level4">
+<h4 class="anchored" data-anchor-id="pluggable-parsers">Pluggable Parsers</h4>
+<p>lxml and Beautiful Soup both have parsers and node APIs that are separate from one another. It is technically possible to use lxml.html’s parser with Beautiful Soup’s Node API, or vice versa. Additionally, selectolax allows choosing between two different backend parsers.</p>
+<p>This isn’t going to factor into feature comparisons, since each supported parser is equally capable and we’ll be looking at speed &amp; flexibility in other sections.</p>
+<p>Having pluggable parsers is a nice feature, but as we’ll see in the rest of this comparison, it might not be as useful as it sounds.</p>
+</section>
+<section id="selectors-dom-traversal" class="level4">
+<h4 class="anchored" data-anchor-id="selectors-dom-traversal">Selectors &amp; DOM Traversal</h4>
+<p>Once HTML is parsed, there are many ways to actually select the nodes that you want to extract data from. As mentioned in earlier sections, using a selector language like XPath or CSS selectors is preferable, but sometimes you will need to fall back to traversing the DOM.</p>
+<p>lxml is an XML-first library, and as such supports the powerful XPath selection language. It also supports the ElementTree API, which is a DOM traversal API. It also supports CSS selectors, but you must install cssselect separately.</p>
+<p>parsel, mostly a wrapper around lxml, also supports XPath and CSS selectors treating both as equal. It does not however expose a DOM traversal API of its own.</p>
+<p>Beautiful Soup has a custom selector API, and also supports CSS selectors since 4.0. It also has dozens of methods for traversing the DOM.</p>
+<p>Selectolax is CSS-first, with no XPath support. It does also provide methods for directly traversing the DOM.</p>
+</section>
+<section id="text-extraction" class="level4">
+<h4 class="anchored" data-anchor-id="text-extraction">Text Extraction</h4>
+<p>All of these libraries provide a way to extract text from a node, but the methods differ.</p>
+<ul>
+<li>lxml provides a <code>text_content()</code> method that will return the text content of a node, including text from child nodes.</li>
+<li>BeautifulSoup similarly provides a <code>.text</code> property that will return the text content of a node, including text from child nodes.</li>
+<li>Parsel does not actually provide a dedicated way to do this, you can use the <code>.xpath('string()')</code> method to get the text content of a node, including text from child nodes.</li>
+<li>selectolax provides a <code>.text()</code> method that will return the text content of a node, including text from child nodes.</li>
+</ul>
+<section id="example-text-extraction" class="level5">
+<h5 class="anchored" data-anchor-id="example-text-extraction">Example: Text Extraction</h5>
+<div class="sourceCode" id="cb10"><pre class="sourceCode html code-with-copy"><code class="sourceCode html"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;div</span> <span class="er">class</span><span class="ot">=</span><span class="st">"content"</span><span class="kw">&gt;</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    This is some content that contains <span class="kw">&lt;em&gt;</span>a little<span class="kw">&lt;/em&gt;</span> bit of markup.</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;br</span> <span class="kw">/&gt;</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    We'll see that these inner tags create some <span class="kw">&lt;em&gt;</span>problems<span class="kw">&lt;/em&gt;</span>,</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>     which some libraries handle better than others.</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;/div&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true">Beautiful Soup</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false">lxml</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-3" role="tab" aria-controls="tabset-2-3" aria-selected="false">parsel</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-4-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-4" role="tab" aria-controls="tabset-2-4" aria-selected="false">Selectolax</a></li></ul>
+<div class="tab-content">
+<div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
+<div class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> bs4 <span class="im">import</span> BeautifulSoup</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>soup <span class="op">=</span> BeautifulSoup(html, <span class="st">'html.parser'</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>soup.text</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="7">
+<pre><code>"\n\n    This is some content that contains a little bit of markup.\n    \n    We'll see that these inner tags create some problems,\n    which some libraries handle better than others.\n\n"</code></pre>
+</div>
+</div>
+</div>
+<div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
+<div class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> lxml.html</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>root <span class="op">=</span> lxml.html.fromstring(html)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>root.text_content()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="8">
+<pre><code>"\n    This is some content that contains a little bit of markup.\n    \n    We'll see that these inner tags create some problems,\n    which some libraries handle better than others.\n"</code></pre>
+</div>
+</div>
+</div>
+<div id="tabset-2-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-3-tab">
+<div class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> parsel</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>sel <span class="op">=</span> parsel.Selector(html)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>sel.xpath(<span class="st">'string()'</span>).get()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="9">
+<pre><code>"\n    This is some content that contains a little bit of markup.\n    \n    We'll see that these inner tags create some problems,\n    which some libraries handle better than others.\n"</code></pre>
+</div>
+</div>
+</div>
+<div id="tabset-2-4" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-4-tab">
+<div class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> selectolax.parser <span class="im">import</span> HTMLParser</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>tree <span class="op">=</span> HTMLParser(html)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>tree.text()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="10">
+<pre><code>"\n    This is some content that contains a little bit of markup.\n    \n    We'll see that these inner tags create some problems,\n    which some libraries handle better than others.\n\n"</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p><a href="https://selectolax.readthedocs.io/en/latest/parser.html#selectolax.parser.HTMLParser.merge_text_nodes">Selectolax’s text extraction</a> seems the most sophisticated. Its <a href="https://selectolax.readthedocs.io/en/latest/parser.html#selectolax.parser.HTMLParser.text"><code>text</code></a> method has convinient parameters to strip text and opt between including text from child nodes or not.</p>
+</section>
+</section>
+<section id="parsel-lxml" class="level4">
+<h4 class="anchored" data-anchor-id="parsel-lxml">parsel &amp; lxml</h4>
+<p><code>parsel</code> at this point may seem to be lacking in features. We’ve seen that it does not support DOM traversal, or have a native method for extracting text from a node. It seems fair to note that you can access the underlying <code>lxml</code> object and use its methods, which provides one workaround.</p>
+<p>Of course, this is not a very clean solution requiring mixing of two APIs and would break if <code>parsel</code> ever switched to a different underlying library. (This has at least been proposed, but it is not clear it is likely.)</p>
+</section>
+</section>
+<section id="complexity" class="level3" data-number="6.2.2">
+<h3 data-number="6.2.2" class="anchored" data-anchor-id="complexity"><span class="header-section-number">6.2.2</span> Complexity</h3>
+<p>At their core, all of these APIs provide a method to parse a string of HTML, and then a node API where most of the work is done. One measure of complexity is taking a look at what methods and properties are available on each library’s node type.</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Library</th>
+<th>Class Name</th>
+<th>Methods</th>
+<th>Public Properties</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Beautiful Soup</td>
+<td><code>bs4.element.Tag</code></td>
+<td>69</td>
+<td>39</td>
+</tr>
+<tr class="even">
+<td>lxml</td>
+<td><code>lxml.html.HtmlElement</code></td>
+<td>43</td>
+<td>15</td>
+</tr>
+<tr class="odd">
+<td>parsel</td>
+<td><code>parsel.selector.Selector</code></td>
+<td>11</td>
+<td>6</td>
+</tr>
+<tr class="even">
+<td>selectolax</td>
+<td><code>selectolax.parser.Node</code></td>
+<td>11</td>
+<td>21</td>
+</tr>
+</tbody>
+</table>
+<p>This is a somewhat arbitrary measure, but illustrates that parsel and selectolax are concise APIs, perhaps at the cost of some functionality.</p>
+<p>Most of the methods and properties that Beautiful Soup provides are for navigating the DOM, and it has a lot of them. When Beautiful Soup came onto the scene, most scrapers did a lot more DOM traversal as XPath and CSS selector implementations were not as mature as they are today.</p>
+</section>
+<section id="documentation" class="level3" data-number="6.2.3">
+<h3 data-number="6.2.3" class="anchored" data-anchor-id="documentation"><span class="header-section-number">6.2.3</span> Documentation</h3>
+<p><a href="https://www.crummy.com/software/Beautiful%20Soup/bs4/doc/">Beautiful Soup</a> has very comprehensive documentation. It has a nice <a href="https://www.crummy.com/software/Beautiful%20Soup/bs4/doc/#quick-start">quick start guide</a> and then detailed examples of its numerous features. One thing that becomes obvious when comparing it to the others is that it has a lot of features, it has a large API for modifying the tree, and dozens of methods for various types of navigation (e.g.&nbsp;<code>next_sibling</code>, <code>next_siblings</code>, <code>next_element</code>, <code>next_elements</code> all exist, with the same for <code>previous</code> and each being slightly different from its peers).</p>
+<p>As the most widely-used there’s also the advantage of a large community of users and a lot of examples online, but I’d temper that by noting that a large number of examples are old and use outdated APIs.</p>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+The pitfalls of popularity
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>In some ways, Beautiful Soup is a victim of its own success here. Popular libraries tend to accumulate features over time, and it would break backwards compatibility to remove them. With a library as widely used as Beautiful Soup, that can be a significant barrier to change.</p>
+<p>Perhaps there will someday be a Beautiful Soup 5 that offers a simplified API.</p>
+</div>
+</div>
+<p><a href="https://lxml.de/">lxml</a> also has incredibly detailed documentation. The documentation site covers all of the features of lxml, which is a large library that contains many features unrelated to HTML parsing. It is a bit better if you limit your search to the <a href="https://lxml.de/lxmlhtml.html">lxml.html</a> module, which is the module that contains the HTML parsing features. Though you may need to look at other parts of the documentation to understand some of the concepts, the documentation for <code>lxml.html</code> is fairly concise and covers most of what you’d need to know.</p>
+<p><a href="https://parsel.readthedocs.io/en/latest/">parsel</a> has a very concise API, and the documentation reflects that. Consisting primarily of a <a href="https://parsel.readthedocs.io/en/latest/usage.html">Usage page</a> and an <a href="https://parsel.readthedocs.io/en/latest/parsel.html">API reference</a>.</p>
+<p>The documentation would probably benefit from more examples, especially since parsel’s small API might leave some users wondering where features they’ve come to rely upon in other libraries are. A few more examples of how to replicate common tasks in other libraries would be helpful.</p>
+<p><a href="https://selectolax.readthedocs.io/en/latest/">selectolax</a> is another very small API. Like <code>parsel</code> it mainly concerns itself with a small set of methods and properties available on a node type. The documentation is purely-module based and does not include any kind of tutorial or usage guide.</p>
+<p>One would hope as the library matures that it will add more documentation, but for now it is a bit bare.</p>
+</section>
+</section>
+<section id="speed-comparison" class="level2" data-number="6.3">
+<h2 data-number="6.3" class="anchored" data-anchor-id="speed-comparison"><span class="header-section-number">6.3</span> Speed Comparison</h2>
+<p>When talking about performance it makes sense to be realistic about the fact that speed is rarely the most important part of choosing a library for HTML parsing.</p>
+<p>As we’ll see, most scrapers will be limited by the time spent making network requests, not the actual parsing of the HTML. While this is generally true, it is still good to understand the relative performance of these libraries. We’ll also take a look at when the performance of the parsers can have a significant impact on the performance of your scraper.</p>
+<p>To compare these libraries, I wrote a series of benchmarks to evaluate the performance of the libraries.</p>
+<section id="parsing-html" class="level3" data-number="6.3.1">
+<h3 data-number="6.3.1" class="anchored" data-anchor-id="parsing-html"><span class="header-section-number">6.3.1</span> Parsing HTML</h3>
+<p>The initial parse of the HTML is likely the most expensive part of the scraping process. This benchmark measures the time it takes to parse the HTML using each library.</p>
+<section id="example-6.1-parsing-html" class="level4">
+<h4 class="anchored" data-anchor-id="example-6.1-parsing-html">Example 6.1: Parsing HTML</h4>
+<div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-3-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-1" role="tab" aria-controls="tabset-3-1" aria-selected="true">lxml.html</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-2" role="tab" aria-controls="tabset-3-2" aria-selected="false">Beautiful Soup</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-3" role="tab" aria-controls="tabset-3-3" aria-selected="false">Selectolax</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-4-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-4" role="tab" aria-controls="tabset-3-4" aria-selected="false">parsel</a></li></ul>
+<div class="tab-content">
+<div id="tabset-3-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-3-1-tab">
+<div class="sourceCode" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>root <span class="op">=</span> lxml.html.fromstring(html)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-3-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-2-tab">
+<div class="sourceCode" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>root <span class="op">=</span> BeautifulSoup(html, <span class="st">'lxml'</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># or 'html.parser' or 'html5lib'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-3-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-3-tab">
+<div class="sourceCode" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>root <span class="op">=</span> selectolax.parser.HTMLParser(html)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="co"># or selectolax.lexbor.LexborParser(html)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-3-4" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-4-tab">
+<div class="sourceCode" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>root <span class="op">=</span> parsel.Selector(html)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+<section id="results" class="level5">
+<h5 class="anchored" data-anchor-id="results">Results</h5>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../img/load_dom.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">load_dom</figcaption><p></p>
+</figure>
+</div>
+<table class="table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">implementation</th>
+<th style="text-align: right;">average_time</th>
+<th style="text-align: right;">normalized</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">lxml.html</td>
+<td style="text-align: right;">0.09 s</td>
+<td style="text-align: right;">4x</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Parsel</td>
+<td style="text-align: right;">0.09 s</td>
+<td style="text-align: right;">4x</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">BeautifulSoup[html.parser]</td>
+<td style="text-align: right;">1.27 s</td>
+<td style="text-align: right;">51x</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">BeautifulSoup[html5lib]</td>
+<td style="text-align: right;">2.47 s</td>
+<td style="text-align: right;">98x</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">BeautifulSoup<a href="#lxml-1">lxml</a></td>
+<td style="text-align: right;">0.92 s</td>
+<td style="text-align: right;">37x</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Selectolax[modest]</td>
+<td style="text-align: right;">0.03 s</td>
+<td style="text-align: right;">1x</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Selectolax[lexbor]</td>
+<td style="text-align: right;">0.02 s</td>
+<td style="text-align: right;">1x</td>
+</tr>
+</tbody>
+</table>
+<p>Selectolax is the winner here, both engines performed about 4x faster than lxml.html. Parsel, as expected, was about the same speed as lxml.html since it is a thin wrapper around it. BeautifulSoup was much slower, even when using lxml as the parser, it was about 10x slower than lxml.html alone. <code>html5lib</code> was about 20x slower than lxml.html, and nearly 100x slower than Selectolax.</p>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Aside: Smaller Pages
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>In an earlier draft of the benchmarks, I used a smaller page to test the parsers. The results were similar, but not as dramatic:</p>
+<p><img src="../img/graph2-load_dom-html5test.png" class="img-fluid"></p>
+<p>Taking a look at a graph with just html5test, it is clear the relative speeds are about the same between the different test pages.</p>
+<p>Parsing this page is so much faster than the larger more complex pages used for the rest of the tests that it basically disappeared on all graphs.</p>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="extracting-links" class="level3" data-number="6.3.2">
+<h3 data-number="6.3.2" class="anchored" data-anchor-id="extracting-links"><span class="header-section-number">6.3.2</span> Extracting Links</h3>
+<p>This benchmark uses each library to find all <code>&lt;a&gt;</code> tags with an <code>href</code> attribute. This is a common task for scrapers and given the number of links on the two test pages, should be a good test of the libraries capabilities. The libraries have different ways of doing this, so I used the most natural way for each library based on their documentation.</p>
+<section id="example-6.2-extracting-links-natural" class="level4">
+<h4 class="anchored" data-anchor-id="example-6.2-extracting-links-natural">Example 6.2: Extracting Links (Natural)</h4>
+<div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-4-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-1" role="tab" aria-controls="tabset-4-1" aria-selected="true">lxml.html</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-4-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-2" role="tab" aria-controls="tabset-4-2" aria-selected="false">Beautiful Soup</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-4-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-3" role="tab" aria-controls="tabset-4-3" aria-selected="false">Selectolax</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-4-4-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-4" role="tab" aria-controls="tabset-4-4" aria-selected="false">Parsel</a></li></ul>
+<div class="tab-content">
+<div id="tabset-4-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-4-1-tab">
+<div class="sourceCode" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># in lxml, XPath is the native way to do this</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>links <span class="op">=</span> root.xpath(<span class="st">'//a[@href]'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-4-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-4-2-tab">
+<div class="sourceCode" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># in BeautifulSoup, you'd typically use find_all</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>links <span class="op">=</span> root.find_all(<span class="st">'a'</span>, href<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-4-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-4-3-tab">
+<div class="sourceCode" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Selectolax is essentially a CSS Selector implementation</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>links <span class="op">=</span> root.css(<span class="st">'a[href]'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-4-4" class="tab-pane" role="tabpanel" aria-labelledby="tabset-4-4-tab">
+<div class="sourceCode" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Parsel is a wrapper around lxml, so we'll use xpath</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>links <span class="op">=</span> root.xpath(<span class="st">'//a[@href]'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+<section id="results-1" class="level5">
+<h5 class="anchored" data-anchor-id="results-1">Results</h5>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../img/links_natural.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">links_natural</figcaption><p></p>
+</figure>
+</div>
+<table class="table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">implementation</th>
+<th style="text-align: right;">average_time</th>
+<th style="text-align: right;">normalized</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">lxml.html</td>
+<td style="text-align: right;">0.0241</td>
+<td style="text-align: right;">11x</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Parsel</td>
+<td style="text-align: right;">0.0469</td>
+<td style="text-align: right;">21x</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">BeautifulSoup[html.parser]</td>
+<td style="text-align: right;">0.0999</td>
+<td style="text-align: right;">44x</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">BeautifulSoup[html5lib]</td>
+<td style="text-align: right;">0.0998</td>
+<td style="text-align: right;">45x</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">BeautifulSoup[lxml]</td>
+<td style="text-align: right;">0.101</td>
+<td style="text-align: right;">44x</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Selectolax[modest]</td>
+<td style="text-align: right;">0.00228</td>
+<td style="text-align: right;">1x</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Selectolax[lexbor]</td>
+<td style="text-align: right;">0.00236</td>
+<td style="text-align: right;">1x</td>
+</tr>
+</tbody>
+</table>
+<p>Once again, Selectolax is in the lead. <code>lxml</code> and <code>parsel</code> are close, with <code>parsel</code>’s overhead adding a bit of time. <code>BeautifulSoup</code> is again very slow, it looks to be essentially the same speed regardless of parser. This suggests that once the DOM is parsed, BeautifulSoup is using its native methods for finding nodes, making it slower than a wrapper like <code>parsel</code> that takes advantage of <code>lxml</code>’s underlying speed.</p>
+<p>Furthermore, the three BeautifulSoup implementations are virtually identical in speed. This was interesting, it looks like BeautifulSoup is likely using its own implementation of <code>find_all</code> instead of taking advantage of lxml’s faster alternatives.</p>
+<p>(It was verified that all implementations gave the same count of links.)</p>
+</section>
+</section>
+</section>
+<section id="extracting-links-css" class="level3" data-number="6.3.3">
+<h3 data-number="6.3.3" class="anchored" data-anchor-id="extracting-links-css"><span class="header-section-number">6.3.3</span> Extracting Links (CSS)</h3>
+<p>I wanted to take a look at another way of getting the same data, in part to see if it’d level the playing field at all. Not all of the libraries support the same features, but all do support CSS selectors. We’ll be querying for the same data as before, but this time with CSS selectors.</p>
+<div class="callout-tip callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>For lxml to support this feature, it needs the <a href="https://pypi.org/project/cssselect/">cssselect</a> library installed.</p>
+</div>
+</div>
+<section id="example-6.3-extracting-links-css" class="level4">
+<h4 class="anchored" data-anchor-id="example-6.3-extracting-links-css">Example 6.3: Extracting Links (CSS)</h4>
+<div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-5-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-1" role="tab" aria-controls="tabset-5-1" aria-selected="true">lxml.html</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-5-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-2" role="tab" aria-controls="tabset-5-2" aria-selected="false">BeautifulSoup</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-5-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-3" role="tab" aria-controls="tabset-5-3" aria-selected="false">Selectolax</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-5-4-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-4" role="tab" aria-controls="tabset-5-4" aria-selected="false">Parsel</a></li></ul>
+<div class="tab-content">
+<div id="tabset-5-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-5-1-tab">
+<div class="sourceCode" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>links <span class="op">=</span> root.cssselect(<span class="st">'a[href]'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-5-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-5-2-tab">
+<div class="sourceCode" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>links <span class="op">=</span> root.select(<span class="st">'a[href]'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-5-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-5-3-tab">
+<div class="sourceCode" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>links <span class="op">=</span> root.css(<span class="st">'a[href]'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-5-4" class="tab-pane" role="tabpanel" aria-labelledby="tabset-5-4-tab">
+<div class="sourceCode" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>links <span class="op">=</span> root.css(<span class="st">'a[href]'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+<section id="results-2" class="level5">
+<h5 class="anchored" data-anchor-id="results-2">Results</h5>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../img/links_css.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">links_css</figcaption><p></p>
+</figure>
+</div>
+<table class="table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">implementation</th>
+<th style="text-align: right;">average_time</th>
+<th style="text-align: right;">normalized</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">lxml.html</td>
+<td style="text-align: right;">0.0176</td>
+<td style="text-align: right;">8x</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Parsel</td>
+<td style="text-align: right;">0.0397</td>
+<td style="text-align: right;">19x</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">BeautifulSoup[html.parser]</td>
+<td style="text-align: right;">0.181</td>
+<td style="text-align: right;">86x</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">BeautifulSoup[html5lib]</td>
+<td style="text-align: right;">0.207</td>
+<td style="text-align: right;">99x</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">BeautifulSoup[lxml]</td>
+<td style="text-align: right;">0.183</td>
+<td style="text-align: right;">88x</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Selectolax[modest]</td>
+<td style="text-align: right;">0.00210</td>
+<td style="text-align: right;">1x</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Selectolax[lexbor]</td>
+<td style="text-align: right;">0.00233</td>
+<td style="text-align: right;">1x</td>
+</tr>
+</tbody>
+</table>
+<p>These results didn’t change much, the main difference is that <code>BeautifulSoup</code> got about twice as slow.</p>
+<p>This did show that CSS Selectors are just as fast in lxml as XPath which is good news if you prefer using them.</p>
+<p>(It was verified that all implementations gave the same count of links.)</p>
+</section>
+</section>
+</section>
+<section id="counting-elements" class="level3" data-number="6.3.4">
+<h3 data-number="6.3.4" class="anchored" data-anchor-id="counting-elements"><span class="header-section-number">6.3.4</span> Counting Elements</h3>
+<p>For this benchmark we’ll walk the DOM tree and count the number of elements. DOM Traversal is just about the worst way to get data out of HTML, but sometimes it is necessary.</p>
+<section id="parsel-5" class="level5 .callout-note">
+<h5 class="anchored" data-anchor-id="parsel-5"><code>parsel</code></h5>
+<pre><code>`parsel` doesn't support direct DOM traversal.  It is possible to get child elements using XPath or CSS selectors, but it is drastically slower
+and didn't feel like a fair comparison since it isn't an intended use case.
+
+It is also possible to use `parsel` to get the underlying `lxml` object and use that to traverse the DOM. If you are using `parsel` 
+and need to do DOM traversal, this is the recommended approach.</code></pre>
+</section>
+<section id="example-6.4-gathering-all-elements" class="level4">
+<h4 class="anchored" data-anchor-id="example-6.4-gathering-all-elements">Example 6.4: Gathering All Elements</h4>
+<div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-6-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-6-1" role="tab" aria-controls="tabset-6-1" aria-selected="true">lxml.html</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-6-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-6-2" role="tab" aria-controls="tabset-6-2" aria-selected="false">Beautiful Soup</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-6-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-6-3" role="tab" aria-controls="tabset-6-3" aria-selected="false">Selectolax</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-6-4-tab" data-bs-toggle="tab" data-bs-target="#tabset-6-4" role="tab" aria-controls="tabset-6-4" aria-selected="false">Parsel</a></li></ul>
+<div class="tab-content">
+<div id="tabset-6-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-6-1-tab">
+<div class="sourceCode" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>all_elements <span class="op">=</span> [e <span class="cf">for</span> e <span class="kw">in</span> root.<span class="bu">iter</span>()]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-6-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-6-2-tab">
+<div class="sourceCode" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># BeautifulSoup includes text nodes, which need to be excluded</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>all_elements <span class="op">=</span> [e <span class="cf">for</span> e <span class="kw">in</span> root.recursiveChildGenerator() <span class="cf">if</span> <span class="bu">isinstance</span>(e, Tag)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-6-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-6-3-tab">
+<div class="sourceCode" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>all_elements <span class="op">=</span> [e <span class="cf">for</span> e <span class="kw">in</span> root.<span class="bu">iter</span>()]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-6-4" class="tab-pane" role="tabpanel" aria-labelledby="tabset-6-4-tab">
+<div class="sourceCode" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Parsel doesn't support DOM traversal, but here's an </span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="co"># example of how to get the underlying lxml object</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>all_elements <span class="op">=</span> [e <span class="cf">for</span> e <span class="kw">in</span> root.root.<span class="bu">iter</span>()]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+<p><img src="../img/count_elements.png" class="img-fluid"></p>
+<table class="table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">implementation</th>
+<th style="text-align: right;">average_time</th>
+<th style="text-align: right;">normalized</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">lxml.html</td>
+<td style="text-align: right;">0.0281</td>
+<td style="text-align: right;">1.3x</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">BeautifulSoup[html.parser]</td>
+<td style="text-align: right;">0.0229</td>
+<td style="text-align: right;">1.1x</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">BeautifulSoup[html5lib]</td>
+<td style="text-align: right;">0.0248</td>
+<td style="text-align: right;">1.2x</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">BeautifulSoup[lxml]</td>
+<td style="text-align: right;">0.0221</td>
+<td style="text-align: right;">1.04x</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Selectolax[modest]</td>
+<td style="text-align: right;">0.0212</td>
+<td style="text-align: right;">1.0x</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Selectolax[lexbor]</td>
+<td style="text-align: right;">0.0239</td>
+<td style="text-align: right;">1.1x</td>
+</tr>
+</tbody>
+</table>
+<p>The variance here is the lowest of any of the benchmarks. All implementations need to do roughly the same work, traversing an already-built tree of HTML nodes in Python. <code>lxml.html</code> is actually the slowest here, but it seems unlikely node-traversal will be a bottleneck in any case.</p>
+</section>
+</section>
+<section id="extracting-text" class="level3" data-number="6.3.5">
+<h3 data-number="6.3.5" class="anchored" data-anchor-id="extracting-text"><span class="header-section-number">6.3.5</span> Extracting Text</h3>
+<p>For this benchmark, we’ll use each parser’s built in text extraction function to extract the text from the pages. These functions extract all of the text from a node and it’s descendants and are useful for things like extracting large blocks of plain text with some markup.</p>
+<div class="callout-tip callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><code>parsel</code> does not have an equivalent function, favoring a different approach to text extraction.</p>
+</div>
+</div>
+<p>These methods are used to extract all of the text from a block of HTML. This is useful for things like extracting large blocks of plain text with some markup.</p>
+<p>For this benchmark in particular, we’ll extract text from each of the <code>&lt;ul&gt;</code> tags on the page.</p>
+<section id="example-6.5-extracting-text" class="level4">
+<h4 class="anchored" data-anchor-id="example-6.5-extracting-text">Example 6.5: Extracting Text</h4>
+<p></p>
+<section id="results-3" class="level5">
+<h5 class="anchored" data-anchor-id="results-3">Results</h5>
+<p><img src="../img/extract_text.png" class="img-fluid"></p>
+<table class="table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">implementation</th>
+<th style="text-align: right;">average_time</th>
+<th style="text-align: right;">normalized</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">lxml.html</td>
+<td style="text-align: right;">0.00938</td>
+<td style="text-align: right;">1x</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">BeautifulSoup[html.parser]</td>
+<td style="text-align: right;">0.0508</td>
+<td style="text-align: right;">5x</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">BeautifulSoup[html5lib]</td>
+<td style="text-align: right;">0.0536</td>
+<td style="text-align: right;">6x</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">BeautifulSoup[lxml]</td>
+<td style="text-align: right;">0.0506</td>
+<td style="text-align: right;">5x</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Selectolax[modest]</td>
+<td style="text-align: right;">0.0250</td>
+<td style="text-align: right;">3x</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Selectolax[lexbor]</td>
+<td style="text-align: right;">0.0237</td>
+<td style="text-align: right;">2x</td>
+</tr>
+</tbody>
+</table>
+<p>Here <code>lxml</code> is the clear winner. With fewer <code>&lt;ul&gt;</code> elements on the page, <code>selectolax</code> keeps up, but with the pyindex example the difference becomes more clear.</p>
+<p>Additionally, BeautifulSoup[html.parser] and BeautifulSoup<a href="#lxml-1">lxml</a> get different results than the rest:</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Libraries</th>
+<th style="text-align: right;">Size of result for ‘asha_bhosle’</th>
+<th style="text-align: right;">Size of result for ‘pyindex’</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">lxml.html, html5lib, and selectolax</td>
+<td style="text-align: right;">2,282</td>
+<td style="text-align: right;">740,069</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">BeautifulSoup[html.parser] and BeautifulSoup<a href="#lxml-1">lxml</a></td>
+<td style="text-align: right;">2,270</td>
+<td style="text-align: right;">565,339</td>
+</tr>
+</tbody>
+</table>
+<p>This is a surprising result, and I’m not sure what’s going on here yet.</p>
+<p>I’d expected different parse trees, but <code>html5lib</code> For the pyindex example it is notable that html5lib and lxml.html are finding about 200,000 more characters than the other parsers. It’s also quite strange that BeautifulSoup’s lxml parser is finding the same number of characters as the html.parser, and not <code>lxml.html</code>.</p>
+<p>I expect the next section where we look at flexibility will shed some light on this.</p>
+</section>
+</section>
+</section>
+<section id="real-world-scrape" class="level3" data-number="6.3.6">
+<h3 data-number="6.3.6" class="anchored" data-anchor-id="real-world-scrape"><span class="header-section-number">6.3.6</span> Real World Scrape</h3>
+<p>So far we’ve been looking at very simple benchmarks of common methods. It seems clear that lxml.html is the fastest, but how much would that speed matter in a real world scenario?</p>
+<p>To simulate a real world scrape, we’ll compose a scrape from the pieces we’ve already done:</p>
+<ol type="1">
+<li>Parse the <a href="https://docs.python.org/3/genindex-all.html">Python documentation index</a> as a start page.</li>
+<li>For each link on the page, parse the page the link points to. (Note: The index contains many links to the same page, we’ll parse each page each time it is encountered to simulate having many more actual pages.)</li>
+<li>On each of those pages, we’ll perform 3 tasks:</li>
+</ol>
+<ol type="a">
+<li>Extract the text from the root element.</li>
+<li>Count the number of elements on the page by walking the DOM.</li>
+<li>Count the spans on the page using CSS selectors.</li>
+</ol>
+<p>This is a fair simulacrum of the work that a real scrape would do. All in all our mock scrape hits 11,824 pages, a moderately sized scrape.</p>
+<p>And of course, as before, all of this will be done using local files so no actual network requests will be made. An initial run will warm an in-memory cache, so disk I/O will not be a factor either.</p>
+<section id="results-4" class="level5">
+<h5 class="anchored" data-anchor-id="results-4">Results</h5>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Parser</th>
+<th>Time (s)</th>
+<th>Pages/s</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>lxml</td>
+<td>266</td>
+<td>44</td>
+</tr>
+<tr class="even">
+<td>BeautifulSoup[html.parser]</td>
+<td>2,292</td>
+<td>5</td>
+</tr>
+<tr class="odd">
+<td>BeautifulSoup[html5lib]</td>
+<td>4,575</td>
+<td>3</td>
+</tr>
+<tr class="even">
+<td>BeautifulSoup[lxml]</td>
+<td>1,694</td>
+<td>7</td>
+</tr>
+<tr class="odd">
+<td>Selectolax[modest]</td>
+<td>211</td>
+<td>56</td>
+</tr>
+<tr class="even">
+<td>Selectolax[lexbor]</td>
+<td>274</td>
+<td>43</td>
+</tr>
+</tbody>
+</table>
+<p>!!! note</p>
+<pre><code>Parsel is excluded here because it does not support all the methods used in the benchmark. Since it allows you to use `lxml` under the hood, and the speed was otherwise comparable to `lxml.html`, it is fair to assume it would be comparable to `lxml.html` in this benchmark as well.</code></pre>
+<p>As is no surprise at this point, Selectolax and lxml.html are the clear winners here with no significant difference between them.</p>
+<p>While the exact amount will vary depending on the specific parsers compared, it is fair to say the C-based libraries are about an order of magnitude faster.</p>
+<p>If you are able to make more than ~10 requests/second, you might find that BeautifulSoup becomes a bottleneck.</p>
+<p>Let’s take a look at how this plays out as we increase the number of requests per second:</p>
+<p><img src="../img/rps_vs_time.png" class="img-fluid"></p>
+<p>As you increase the number of requests per second that you’re able to obtain, the amount of the time spent in the parser increases. As you can see, by 10 requests per second, BeautifulSoup is taking more than half the time, and by 20 requests, it is taking ~80%.</p>
+<p>To contrast, <code>lxml.html</code> and <code>selectolax</code> are able to keep up with the increase in requests per second, unlikely to be the bottleneck until you are making 50+ requests per second.</p>
+</section>
+</section>
+</section>
+<section id="memory-comparison" class="level2" data-number="6.4">
+<h2 data-number="6.4" class="anchored" data-anchor-id="memory-comparison"><span class="header-section-number">6.4</span> Memory Comparison</h2>
+<p>Finally, let’s take a look at how much memory each parser uses while handling the following files:</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Example</th>
+<th>Bytes</th>
+<th>Tags</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>asha_bhosle</td>
+<td>1,132,673</td>
+<td>~38,450</td>
+</tr>
+<tr class="even">
+<td>pyindex</td>
+<td>1,683,137</td>
+<td>~34,950</td>
+</tr>
+<tr class="odd">
+<td>html5test</td>
+<td>18,992</td>
+<td>218</td>
+</tr>
+</tbody>
+</table>
+<p>This is somewhat difficult to measure, as the memory usage of an object is not easily accessible from Python. I used <a href="https://github.com/bloomberg/memray">memray</a> to measure a sample piece of code that loaded each parser and parsed the sample pages.</p>
+<p><img src="../img/memory_usage.png" class="img-fluid"></p>
+<p>These results have a lot of interesting things to say about the parsers.</p>
+<p>First, BeautifulSoup is typically the least-memory efficient. This is probably not surprising, but it is surprising to see that there is a definite memory tax for using it with the <code>lxml.html</code> parser. This is particularly interesting since <code>lxml.html</code> is the most-memory efficient parser in each test.</p>
+<p><code>parsel</code> performs very well here, with seemingly minimal overhead on top of it’s underlying <code>lxml.html</code> parser.</p>
+<p><code>selectolax</code> looks good, sitting at the midway point between <code>lxml.html</code> and <code>BeautifulSoup</code>. It struggled however with the <code>html5test</code> page, included here with 10x and 100x repetitions to allow for comparison.</p>
+<p>It’s interesting to see that <code>selectolax</code> does so poorly here. It’s possible that there is a fixed minimum of memory that selectolax uses for each page, and that the <code>html5test</code> page is so small that it is not able to take advantage of that minimum. In practice this shouldn’t be an issue, as typically only a single page would be loaded at a time, but it still seems worth noting as an unexpected result.</p>
+</section>
+<section id="does-performance-matter" class="level2" data-number="6.5">
+<h2 data-number="6.5" class="anchored" data-anchor-id="does-performance-matter"><span class="header-section-number">6.5</span> Does Performance Matter?</h2>
+<p>One one hand, performance isn’t going to make or break your scrape. If you’re scraping a small number of pages, or are dealing with a slow site or rate limit, the difference between the fastest and slowest parsers is going to be negligible.</p>
+<p>In practice, the real payoffs of using a faster parser are going to be felt the most during development of larger scrapers. If you’re using a local cache while scraping (and I hope you are), your requests per second are nearly limitless. This means that the speed of your parser is going to be the limiting factor in how fast you can iterate on your scrape.</p>
+<p>In a 1,000 page scrape from cache of pages similar to our final benchmark, a full trial run would take less than 15 seconds while a full trial run with <code>html5lib.parser</code> would take nearly 3 minutes. At 10,000 pages the difference between the shortest and longest is almost half an hour.</p>
+<p>Memory usage might also matter to you, if you are running your scraper on a small VPS or have unusually complex pages, memory usage could be a factor and that’s another place where <code>lxml.html</code> shines.</p>
+<p>TODO: check numbers for these paragraphs w/ final results</p>
+</section>
+<section id="bad-html" class="level2" data-number="6.6">
+<h2 data-number="6.6" class="anchored" data-anchor-id="bad-html"><span class="header-section-number">6.6</span> Bad HTML</h2>
+<p>We saw in the performance comparison that the results of counting particular nodes differed somewhat between parsers.</p>
+<p>This mostly happens because there are differences in how they handle malformed HTML.</p>
+<p>In a strict language like XML, forgetting to close a tag or containing some unescaped characters is treated as a syntax error. The parser is expected to stop parsing and report the error.</p>
+<p>Browsers are much more forgiving, and will often attempt to “fix” the HTML before rendering it. That means according to certain heuristics, tags can be omitted, unescaped characters can be treated as text, and so on. If you’ve written more than a few scrapers you’ve likely encountered some, “creative” HTML, and this is core to why that is.</p>
+<p>Our parsers attempt to do the same thing, but do not always agree in their assumptions.</p>
+<p>A missing closing tag, or in some cases a single character typo, can cause a parser to fail to correctly parse the rest of the document. When this happens the scraper author is left with the choice to either fall back to crude techniques to “fix” the HTML, or to use another parser.</p>
+<p>To evaluate the different parsers, we’ll look at a few examples of bad HTML and see how they handle it. This is far from comprehensive, but should give a sense of how the parsers handle common issues.</p>
+<p>TODO: write examples</p>
+</section>
+<section id="conclusions" class="level2" data-number="6.7">
+<h2 data-number="6.7" class="anchored" data-anchor-id="conclusions"><span class="header-section-number">6.7</span> Conclusions</h2>
+<p>There’s no clear winner among these. Much of it will come down to developer preference, and the needs of the project.</p>
+<section id="beautiful-soup-4" class="level3" data-number="6.7.1">
+<h3 data-number="6.7.1" class="anchored" data-anchor-id="beautiful-soup-4"><span class="header-section-number">6.7.1</span> <code>Beautiful Soup</code></h3>
+<p>As the most widely used library, it is easy to find examples and documentation online. It is very feature-rich, including features like DOM modification outside the scope of this comparison.</p>
+<p>The API is large and can be confusing to new users, with the often favored node-search based approach being very specific to Beautiful Soup as opposed to things like XPath &amp; CSS selectors that are more broadly used in scrapers.</p>
+<p>In many ways <code>Beautiful Soup</code> feels like a victim of its own success. It has a lot of legacy code and features that are no longer as relevant, but I’d imagine the sheer number of users makes it difficult to make breaking changes even if the author’s wanted to.</p>
+<p>For a new project, I’d probably look at the other libraries first, but if a team was already using Beautiful Soup it might not make sense to switch unless they were running into performance issues. As the benchmarks indicated, even if they were already using the lxml backend, there is a lot to be gained by switching to lxml or Selectolax.</p>
+</section>
+<section id="lxml-2" class="level3" data-number="6.7.2">
+<h3 data-number="6.7.2" class="anchored" data-anchor-id="lxml-2"><span class="header-section-number">6.7.2</span> <code>lxml</code></h3>
+<p>A powerful &amp; underrated library, <code>lxml.html</code> wins major points for being the only one to support XPath and CSS selectors natively. It has a DOM traversal API that can be used similarly to <code>Beautiful Soup</code>’s node-search based approach if desired.</p>
+<p>Like <code>Beautiful Soup</code>, it has a somewhat sprawling API that contains dozens of methods most people will never need. Many of these are part of the <code>ElementTree</code> API, which is a DOM traversal API that is not specific to HTML parsing.</p>
+<p>The most commonly-cited downside is that it relies upon C libraries, which can make installation and deployment more difficult on some platforms. I find with modern package managers this is less of an issue than it used to be, but it is still a valid concern.</p>
+<p>As fast as it is, it is also exceedingly unlikely to become a performance bottleneck in most projects.</p>
+<p>It’s a solid all-around choice.</p>
+</section>
+<section id="parsel-7" class="level3" data-number="6.7.3">
+<h3 data-number="6.7.3" class="anchored" data-anchor-id="parsel-7"><span class="header-section-number">6.7.3</span> <code>parsel</code></h3>
+<p>parsel is a nice idea, a thin wrapper around lxml that focuses on providing a simple API for XPath and CSS selectors. It is a good idea, but using it leaves something to be desired. Its API is very small, perhaps going too far in the other direction.</p>
+<p>It has an API that is quite different from the others, which some might find very pleasant and others might dislike.</p>
+<p>As a wrapper around <code>lxml</code> it has the same advantages and disadvantages, with minimal overhead. Of course, if installing C libraries is a concern, it will be an issue here too.</p>
+</section>
+<section id="selectolax-6" class="level3" data-number="6.7.4">
+<h3 data-number="6.7.4" class="anchored" data-anchor-id="selectolax-6"><span class="header-section-number">6.7.4</span> <code>selectolax</code></h3>
+<p>I was completely unfamiliar with Selectolax before starting this comparison and came away impressed. The API is small and easy to learn, but with a few convenience functions that I found nice to have compared to parsel’s approach.</p>
+<p>The main downside I see is that it does not have native XPath support. While CSS selectors are more widely-used, XPath is very powerful and it is nice to have the option to use it when using <code>lxml.html</code> or <code>parsel</code>.</p>
+<p><code>selectolax</code> of course also depends upon C libraries, and newer/unproven ones at that. That’d be a bit of a concern if I were evaluating it for a long-term project that would need to be maintained for years, but I’ll probably be giving it a try on a personal project in the near future.</p>
+</section>
+</section>
+<section id="environment" class="level2" data-number="6.8">
+<h2 data-number="6.8" class="anchored" data-anchor-id="environment"><span class="header-section-number">6.8</span> Environment</h2>
+<p>All benchmarks were evaluated on a 2021 MacBook Pro with an Apple M1 Pro.</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Component</th>
+<th>Version</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Python</td>
+<td>3.10.7 (installed via pyenv)</td>
+</tr>
+<tr class="even">
+<td>BeautifulSoup</td>
+<td>4.11.1</td>
+</tr>
+<tr class="odd">
+<td>cchardet</td>
+<td>2.1.7</td>
+</tr>
+<tr class="even">
+<td>cssselect</td>
+<td>1.2.0</td>
+</tr>
+<tr class="odd">
+<td>html5lib</td>
+<td>1.1</td>
+</tr>
+<tr class="even">
+<td>lxml</td>
+<td>4.9.1</td>
+</tr>
+<tr class="odd">
+<td>selectolax</td>
+<td>0.3.11</td>
+</tr>
+</tbody>
+</table>
+<p>According to the <a href="https://beautiful-soup-4.readthedocs.io/en/latest/#improving-performance">Beautiful Soup docs</a> installing <code>cchardet</code> is recommended for performance. These tests were run with <code>cchardet</code> installed to ensure a fair comparison, though it did not make a noticable difference in performance in these cases.</p>
+<p>The sample pages referenced in the benchmarks are:</p>
+<ul>
+<li><a href="https://docs.python.org/3/genindex-all.html">Python Documentation Full Index</a> - A fairly large page with lots of links.</li>
+<li><a href="https://en.wikipedia.org/wiki/List_of_2021%E2%80%9322_NBA_season_transactions">List of 2021-22 NBA Transactions</a> - A very large Wikipedia page with a huge table.</li>
+<li><a href="https://en.wikipedia.org/wiki/List_of_Hindi_songs_recorded_by_Asha_Bhosle">List of Hindi songs recorded by Asha Bhosle</a> - At the time of writing, the largest Wikipedia page.</li>
+<li><a href="https://html5test.com/index.html">HTML5 Test Page</a> - A moderately sized page with lots of HTML5 features.</li>
+</ul>
+<p>All source code for these experiments is in <a href="https://github.com/jamesturk/scraping-experiments/">scraping-experiments</a>.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  let localAlternateSentinel = 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../requests/index.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Making Requests</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../other-libraries.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Other Libraries</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+</body></html>
